@@ -5,17 +5,17 @@ public class Riddle {
     private final String answer;
     private final int maxNumberOfFail;
     private int numberOfFails;
-    private ArrayList triedLetters;
-    private String displayedString;
+    private ArrayList<String> triedLetters;
+    private StringBuilder displayedString;
 
     public Riddle(String answer, int maxNumberOfFail) {
         this.answer = answer.toUpperCase(Locale.ROOT);
         this.maxNumberOfFail = maxNumberOfFail;
         this.numberOfFails=0;
-        this.triedLetters= new ArrayList();
-        displayedString="";
+        this.triedLetters= new ArrayList<>();
+        displayedString=new StringBuilder();
         for (char c : answer.toCharArray()){
-            displayedString+="-";
+            displayedString.append("-");
         }
     }
 
@@ -24,14 +24,12 @@ public class Riddle {
         if (numberOfFails<=maxNumberOfFail){
         triedLetter= triedLetter<='z'?
                 (char) (triedLetter + 'A' - 'a') :triedLetter;
-        triedLetters.add(triedLetter);
-        for (int i=0;i<answer.length();i++){
-            if (answer.toCharArray()[i]==triedLetter){
-                ret=true;
-                displayedString=
-                        displayedString.substring(0,i)+triedLetter+
-                        displayedString.substring(i+1);
-            }
+        triedLetters.add(""+triedLetter);
+        int start = 0;
+        while((start=answer.indexOf(triedLetter,start))!=-1){
+            displayedString.replace(start,start+1,""+triedLetter);
+            start++;
+            ret=true;
         }
         numberOfFails=ret?numberOfFails:numberOfFails+1;
         }
@@ -40,6 +38,6 @@ public class Riddle {
 
     @Override
     public String toString(){
-        return displayedString;
+        return displayedString.toString();
     }
 }

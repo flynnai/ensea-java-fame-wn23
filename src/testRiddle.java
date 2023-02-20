@@ -8,6 +8,7 @@ public class testRiddle {
         riddle.guess('o');
         System.out.println(riddle);
         riddle.guess('c');
+        System.out.println(riddle);
     }
 }
 
