@@ -1,5 +1,10 @@
-public class GUI {
-    public class Main extends Application {
+import javafx.application.Application;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+
+public class GUI extends Application{
         @Override
         public void start(Stage primaryStage) throws Exception {
             primaryStage.setTitle("FAME Rulez");
