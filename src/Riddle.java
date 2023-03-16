@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class Riddle {
-    private final String answer;
+    protected final String answer;
     private final int maxNumberOfFail;
     private int numberOfFails;
     private ArrayList<String> triedLetters;

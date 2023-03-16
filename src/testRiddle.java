@@ -1,6 +1,7 @@
 public class testRiddle {
     public static void main(String[] args){
         Riddle riddle = new Riddle("Computer",7);
+        GraphicalRiddle graphicalRiddle = new GraphicalRiddle("Computer",7);
         riddle.guess('a');
         System.out.println(riddle);
         riddle.guess('u');
@@ -9,6 +10,7 @@ public class testRiddle {
         System.out.println(riddle);
         riddle.guess('c');
         System.out.println(riddle);
+        System.out.println(graphicalRiddle);
     }
 }
 
