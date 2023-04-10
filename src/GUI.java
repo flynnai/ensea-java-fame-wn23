@@ -12,6 +12,7 @@ import java.util.*;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.BodyFixture;
+import org.dyn4j.dynamics.Force;
 import org.dyn4j.dynamics.World;
 import org.dyn4j.geometry.Mass;
 import org.dyn4j.geometry.Rectangle;
@@ -85,19 +86,15 @@ public class GUI extends Application {
 
                 // movement
                 if (inputsPressed.get("up")) {
-                    sy -= 0.01;
+                    playerBody.applyForce(new Force(0, 100));
                 } else if (inputsPressed.get("down")) {
-                    sy += 0.01;
+                    // for later
                 }
                 if (inputsPressed.get("left")) {
-                    sx -= 0.01;
+                    playerBody.applyForce(new Force(-20, 0));
                 } else if (inputsPressed.get("right")) {
-                    sx += 0.01;
+                    playerBody.applyForce(new Force(20, 0));
                 }
-                sx *= 0.9;
-                sy *= 0.9;
-                scrollX += sx;
-                scrollY += sy;
 
                 world.update(((double) elapsedNanoSeconds) / 10e8);
                 Vector2 position = playerBody.getWorldCenter();
@@ -114,7 +111,6 @@ public class GUI extends Application {
                 playerDisplayRect.getTransforms().clear();
                 playerDisplayRect.getTransforms().add(new Translate(TILE_SIZE * -0.5, TILE_SIZE * -1));
                 playerDisplayRect.getTransforms().add(rotation);
-                System.out.println(playerBody.getWorldCenter() + " scroll: " + scrollX + " " + scrollY);
 
             }
 
