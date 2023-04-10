@@ -2,6 +2,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import org.dyn4j.dynamics.World;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
@@ -18,7 +19,7 @@ public class TileMapLayer {
     private int tilePaddingPx;
     private int displayTileSizePx;
 
-    public TileMapLayer(JSONObject tilesJson, int mapWidth, int mapHeight, Rectangle2D viewport, int tileSizePx, int tilePaddingPx, Image spriteSheet, int displayTileSizePx, Pane pane) {
+    public TileMapLayer(JSONObject tilesJson, int mapWidth, int mapHeight, Rectangle2D viewport, int tileSizePx, int tilePaddingPx, Image spriteSheet, int displayTileSizePx, Pane pane, World world) {
         List<List<Tile>> tileMatrix = new ArrayList<>();
         // initialize to all `null`'s
         for (int i = 0; i < mapHeight; i++) {
@@ -40,7 +41,7 @@ public class TileMapLayer {
             int tilesetCol = tileJson.getInt("x");
             int tilesetRow = tileJson.getInt("y");
 
-            tileMatrix.get(mapRow).set(mapCol, new Tile(tilesetRow, tilesetCol));
+            tileMatrix.get(mapRow).set(mapCol, new Tile(tilesetRow, tilesetCol, mapCol + 0.5, -mapRow - 0.5, world));
         }
 
         this.tileMatrix = tileMatrix;

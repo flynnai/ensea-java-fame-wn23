@@ -2,6 +2,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import org.dyn4j.dynamics.World;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -16,7 +17,7 @@ import java.util.List;
 public class TileMap {
     private List<TileMapLayer> layers;
 
-    public TileMap(String spriteSheetPath, int tileSizePx, int tilePaddingPx, String tileMapPath, Pane pane, Rectangle2D gameViewport, int displayTileSizePx) throws FileNotFoundException {
+    public TileMap(String spriteSheetPath, int tileSizePx, int tilePaddingPx, String tileMapPath, Pane pane, Rectangle2D gameViewport, int displayTileSizePx, World world) throws FileNotFoundException {
         // TODO we can use embedded JSON base64 spritesheet instead
         Image spriteSheet = new Image("file:" + spriteSheetPath);
 
@@ -35,7 +36,7 @@ public class TileMap {
             JSONObject layerJson = layers.getJSONObject(layerNum);
             JSONObject tilesJson = layerJson.getJSONObject("tiles");
 
-            TileMapLayer layer = new TileMapLayer(tilesJson, mapWidth, mapHeight, gameViewport, tileSizePx, tilePaddingPx, spriteSheet, displayTileSizePx, pane);
+            TileMapLayer layer = new TileMapLayer(tilesJson, mapWidth, mapHeight, gameViewport, tileSizePx, tilePaddingPx, spriteSheet, displayTileSizePx, pane, world);
             this.layers.add(layer);
         }
     }
