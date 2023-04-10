@@ -23,6 +23,8 @@ import javafx.scene.image.Image;
 import javafx.util.Duration;
 
 public class GUI extends Application{
+    private double scrollX;
+    private double scrollY;
         @Override
         public void start(Stage primaryStage) throws Exception {
             primaryStage.setTitle("Jaconde Test");
@@ -39,6 +41,15 @@ public class GUI extends Application{
             pane.setTranslateY(0);
             root.getChildren().add(pane);
 
+            // set up tilemap
+            TileMap tilemap = new TileMap(
+                "./img/sprite_sheets/mario_tileset.png",
+                32,
+                1,
+                "./data/tile_maps/mario4_format2.json",
+                pane
+            );
+
 
             // sprite images
 //            Image earthImg = new Image("file:./img/earth.png");
@@ -50,9 +61,14 @@ public class GUI extends Application{
 //            earthView.setFitHeight(earthSize);
 //            pane.getChildren().add(earthView);
 
+            scrollX = 0;
+            scrollY = 0;
             AnimationTimer timer = new AnimationTimer() {
                 public void handle(long currentNanoTime) {
+                    scrollX += 0.1;
+                    scrollY += 0.1;
 
+                    tilemap.paint(scrollX, scrollY);
                 }
 
             };
