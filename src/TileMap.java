@@ -36,7 +36,18 @@ public class TileMap {
             JSONObject layerJson = layers.getJSONObject(layerNum);
             JSONObject tilesJson = layerJson.getJSONObject("tiles");
 
-            TileMapLayer layer = new TileMapLayer(tilesJson, mapWidth, mapHeight, gameViewport, tileSizePx, tilePaddingPx, spriteSheet, displayTileSizePx, pane, world);
+            TileMapLayer layer = new TileMapLayer(
+                    tilesJson,
+                    mapWidth,
+                    mapHeight,
+                    gameViewport,
+                    tileSizePx,
+                    tilePaddingPx,
+                    spriteSheet,
+                    displayTileSizePx,
+                    pane,
+                    layerNum == 1 ? world : null // only have physics for layer 1
+            );
             this.layers.add(layer);
         }
     }
