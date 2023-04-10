@@ -1,28 +1,19 @@
 import javafx.animation.AnimationTimer;
-import javafx.animation.RotateTransition;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.io.FileInputStream;
 import java.util.*;
-import java.util.List;
 
-import javafx.scene.image.Image;
-import javafx.util.Duration;
-import javafx.scene.input.KeyCode;
+import org.dyn4j.dynamics.Body;
+import org.dyn4j.dynamics.BodyFixture;
+import org.dyn4j.dynamics.World;
+import org.dyn4j.geometry.Mass;
+import org.dyn4j.geometry.Rectangle;
+import org.dyn4j.geometry.Vector2;
 
 public class GUI extends Application {
     private double scrollX;
@@ -31,6 +22,8 @@ public class GUI extends Application {
     private double sy;
 
     private Dictionary<String, Boolean> inputsPressed;
+    long startNanoTime;
+
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -59,21 +52,22 @@ public class GUI extends Application {
                 45
         );
 
+        World world = new World();
+        Rectangle myRect = new Rectangle(1, 2);
+        Body someBod = new Body();
+        BodyFixture fixt = new BodyFixture(myRect);
+        fixt.setDensity(1);
+        Mass bodyMass = fixt.createMass();
+        someBod.addFixture(fixt);
+        someBod.setMass(bodyMass);
+        world.addBody(someBod);
 
-        // sprite images
-//            Image earthImg = new Image("file:./img/earth.png");
-//            ImageView earthView = new ImageView(earthImg);
-//            earthView.setX(300);
-//            earthView.setY(200);
-//            double earthSize = earthImg.getWidth() * 0.5;
-//            earthView.setFitWidth(earthSize);
-//            earthView.setFitHeight(earthSize);
-//            pane.getChildren().add(earthView);
-
-        scrollX = 0;
-        scrollY = 0;
+        startNanoTime = System.nanoTime();
         AnimationTimer timer = new AnimationTimer() {
             public void handle(long currentNanoTime) {
+                long elapsedNanoSeconds = currentNanoTime - startNanoTime;
+                startNanoTime = currentNanoTime;
+
                 // movement
                 if (inputsPressed.get("up")) {
                     sy -= 0.01;
@@ -82,13 +76,18 @@ public class GUI extends Application {
                 }
                 if (inputsPressed.get("left")) {
                     sx -= 0.01;
-                } else  if (inputsPressed.get("right")){
+                } else if (inputsPressed.get("right")) {
                     sx += 0.01;
                 }
                 sx *= 0.9;
                 sy *= 0.9;
                 scrollX += sx;
                 scrollY += sy;
+
+                world.update(((double) elapsedNanoSeconds) / 10e8);
+                Vector2 position = someBod.getWorldPoint(new Vector2(0, 0));
+                scrollX = position.x;
+                scrollY = position.y;
 
                 tilemap.paint(scrollX, scrollY);
             }
