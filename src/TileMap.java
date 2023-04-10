@@ -37,14 +37,18 @@ import java.util.Optional;
 
 
 public class TileMap {
-    private int tileSize;
     private Image spriteSheet;
     private int spriteSheetNumCols;
     private int spriteSheetNumRows;
     private List<TileMapLayer> layers;
 
-    public TileMap(String spriteSheetPath, int tileSizePx, int tilePaddingPx, String tileMapPath, Pane pane) throws FileNotFoundException {
+    private int tilesetTileSizePx;
+    private int tilesetPaddingSizePx;
+
+    public TileMap(String spriteSheetPath, int tileSizePx, int tilePaddingPx, String tileMapPath, Pane pane, Rectangle2D gameViewport) throws FileNotFoundException {
         // TODO we can use embedded JSON base64 spritesheet instead
+        this.tilesetTileSizePx = tileSizePx;
+        this.tilesetPaddingSizePx = tilePaddingPx;
         spriteSheet = new Image("file:" + spriteSheetPath);
         spriteSheetNumCols = (int) Math.floor((spriteSheet.getWidth() + tilePaddingPx) / (tileSizePx + tilePaddingPx));
         spriteSheetNumRows = (int) Math.floor((spriteSheet.getHeight() + tilePaddingPx) / (tileSizePx + tilePaddingPx));
@@ -84,60 +88,69 @@ public class TileMap {
                 int tilesetCol = tileJson.getInt("x");
                 int tilesetRow = tileJson.getInt("y");
 
-                // set up tile's image
-                ImageView tileView = new ImageView(spriteSheet);
-                Rectangle2D viewport = new Rectangle2D(
-                        tilesetCol * (tileSizePx + tilePaddingPx),
-                        tilesetRow * (tileSizePx + tilePaddingPx),
-                        tileSizePx,
-                        tileSizePx
-                );
-                System.out.println("Here's the rect:" + viewport);
-                tileView.setViewport(viewport);
-                pane.getChildren().add(tileView);
-
-                // TODO we do NOT need mapRow, mapCol stored in Tile, since it's at that index
-                tileMatrix.get(mapRow).set(mapCol, new Tile(mapCol, mapRow, tilesetRow, tilesetCol, tileView));
+                tileMatrix.get(mapRow).set(mapCol, new Tile(tilesetRow, tilesetCol));
             }
 
-            this.layers.add(new TileMapLayer(tileMatrix));
-
+            this.layers.add(new TileMapLayer(tileMatrix, gameViewport, tileSizePx, spriteSheet, pane));
         }
 
         // TODO call paint() so everything's in the right position
-
-//        for layer in map["layers"]:
-//            tiles = layer["tiles"]
-//            outputLayerTiles = [[] * width] * height
-//            for key in tiles.keys():
-//                tile = tiles[key]
-//                col, row = [int(elt) for elt in key.split("-")]
-//                tilesetCol, tilesetRow = tile["x"], tile["y"]
-//                outputLayerTiles.append(Tile(
-//                    mapRow=row,
-//                    mapCol=col,
-//                    tilesetRow=tilesetRow,
-//                    tilesetCol=tilesetCol
-//                ))
-
-
     }
 
     void paint(double scrollX, double scrollY) {
+        // scrollX, scrollY are tile-relative (e.g. 0.5 is half a tile)
         double tileSize = 32; // TODO magic number, should pass in
         for (TileMapLayer layer : layers) {
-            for (int rowNum = 0; rowNum < layer.tileMatrix.size(); rowNum++) {
-                List<Tile> row = layer.tileMatrix.get(rowNum);
-                for (int colNum = 0; colNum < row.size(); colNum++) {
-                    Tile tile = row.get(colNum);
-                    // check if empty tile
-                    if (tile != null) {
-                        ImageView tileView = tile.imageView;
-                        tileView.setFitWidth(tileSize);
-                        tileView.setFitHeight(tileSize);
-                        tileView.setX(tileSize * colNum - scrollX);
-                        tileView.setY(tileSize * rowNum - scrollY);
+            int layerWidth = layer.tileMatrix.get(0).size();
+            int layerHeight = layer.tileMatrix.size();
+//            for (int rowNum = 0; rowNum < layer.tileMatrix.size(); rowNum++) {
+//                List<Tile> row = layer.tileMatrix.get(rowNum);
+//                for (int colNum = 0; colNum < row.size(); colNum++) {
+//                    Tile tile = row.get(colNum);
+//                    // check if empty tile
+//                    if (tile != null) {
+//                        ImageView tileView = tile.imageView;
+//                        tileView.setFitWidth(tileSize);
+//                        tileView.setFitHeight(tileSize);
+//                        tileView.setX(tileSize * colNum - scrollX);
+//                        tileView.setY(tileSize * rowNum - scrollY);
+//                    }
+//                }
+//            }
+
+
+            // given scrollX, scrollY...
+            // tileScrollX is scrollX / tileSizePx, same for tileScrollY
+            // intertileOffsetX is tileScrollX mod 1, same for y
+            // startCol is (int) (tileScrollX - intertileOffsetX)
+            // run thru all imageViews and update, offset by startCol, startRow
+
+            double interTileOffsetX = scrollX % 1;
+            double interTileOffsetY = scrollY % 1;
+            int startCol = (int) (scrollX - interTileOffsetX);
+            int startRow = (int) (scrollY - interTileOffsetY);
+            for (int viewportRowNum = 0; viewportRowNum < layer.tileViews.size(); viewportRowNum++) {
+                List<ImageView> viewportRow = layer.tileViews.get(viewportRowNum);
+                for (int viewportColNum = 0; viewportColNum < viewportRow.size(); viewportColNum++) {
+                    int mapRowNum = viewportRowNum - startRow;
+                    int mapColNum = viewportColNum - startCol;
+                    ImageView tileView = viewportRow.get(viewportColNum);
+
+                    boolean isOffScreen = !(mapRowNum >= 0 && mapRowNum < layerHeight && mapColNum >= 0 && mapColNum < layerWidth);
+                    Tile tile = isOffScreen ? null : layer.tileMatrix.get(mapRowNum).get(mapColNum);
+                    if (tile == null) {
+                        // offscreen, or empty spot in map
+                        tileView.setVisible(false);
+                        continue;
                     }
+                    tileView.setVisible(true);
+                    tileView.setViewport(new Rectangle2D(
+                            tile.tilesetCol * (this.tilesetTileSizePx + this.tilesetPaddingSizePx),
+                            tile.tilesetRow * (this.tilesetTileSizePx + this.tilesetPaddingSizePx),
+                            this.tilesetTileSizePx,
+                            this.tilesetTileSizePx
+                    ));
+                    tileView.relocate(tileSize * (viewportColNum + interTileOffsetX), tileSize * (viewportRowNum + interTileOffsetY));
                 }
             }
         }
