@@ -12,5 +12,6 @@
     <orderEntry type="library" name="json-20140107" level="project" />
     <orderEntry type="library" name="java" level="project" />
     <orderEntry type="library" name="dyn4j-v3.3.0" level="project" />
+    <orderEntry type="library" name="googlecode.playn.jbox2d" level="project" />
   </component>
 </module>

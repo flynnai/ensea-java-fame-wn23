@@ -1,8 +1,11 @@
 import javafx.scene.image.ImageView;
-import org.dyn4j.dynamics.Body;
-import org.dyn4j.dynamics.BodyFixture;
-import org.dyn4j.dynamics.World;
-import org.dyn4j.geometry.*;
+
+import org.jbox2d.collision.shapes.PolygonShape;
+import org.jbox2d.common.Transform;
+import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.*;
+import org.jbox2d.dynamics.World;
+
 
 public class Tile {
     public int tilesetRow;
@@ -18,16 +21,19 @@ public class Tile {
             body = null;
             return;
         } else {
-            Rectangle squareShape = new Rectangle(1, 1);
-            body = new Body();
-            body.addFixture(new BodyFixture(squareShape));
-            body.setMass(new Mass(new Vector2(0, 0), 0, 0));
-            body.setMassType(MassType.INFINITE);
+            PolygonShape squareShape = new PolygonShape();
+            squareShape.setAsBox(0.5f, 0.5f); // Half-width and half-height of the rectangle
+            FixtureDef squareFixture = new FixtureDef();
+            squareFixture.shape = squareShape;
+            squareFixture.density = 0f; // Set to zero for infinite mass (static object)
+            squareFixture.friction = 0.2f; // Set friction to prevent sliding
 
-            Transform worldToLocal = new Transform();
-            worldToLocal.setTranslation(new Vector2(x, y));
-            body.setTransform(worldToLocal);
-            world.addBody(body);
+            BodyDef squareBodyDef = new BodyDef();
+            squareBodyDef.type = BodyType.STATIC;
+            squareBodyDef.position.set((float)x, (float)y);
+
+            body = world.createBody(squareBodyDef);
+            body.createFixture(squareFixture);
         }
     }
 }

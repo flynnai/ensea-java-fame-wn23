@@ -7,14 +7,13 @@ import javafx.scene.layout.Pane;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
+import org.jbox2d.collision.shapes.PolygonShape;
+import org.jbox2d.common.Transform;
+import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.*;
 
 import java.util.*;
 
-import org.dyn4j.dynamics.Body;
-import org.dyn4j.dynamics.BodyFixture;
-import org.dyn4j.dynamics.Force;
-import org.dyn4j.dynamics.World;
-import org.dyn4j.geometry.*;
 
 public class GUI extends Application {
     private double scrollX;
@@ -48,33 +47,26 @@ public class GUI extends Application {
         pane.setTranslateY(0);
         root.getChildren().add(pane);
 
+
         // set up physics world
-        World world = new World();
-        Body playerBody = new Body();
+        World world = new World(new Vec2(0, -9.81f));
+        BodyDef playerBodyDef = new BodyDef();
+        playerBodyDef.fixedRotation = true;
+        Body playerBody = world.createBody(playerBodyDef);
+
 
         // rect player shape
-//        Rectangle playerRect = new Rectangle(1, 2);
-//        BodyFixture playerFixture = new BodyFixture(playerRect);
-//        playerBody.addFixture(playerFixture);
+        PolygonShape playerShape = new PolygonShape();
+        playerShape.setAsBox(0.5f, 1f, new Vec2(0, 1f), 0f);
+        FixtureDef playerFixture = new FixtureDef();
+        playerFixture.shape = playerShape;
+        playerFixture.density = 1f;
+        playerBody.createFixture(playerFixture);
 
-        // two stacked circles shape
-        Circle c1 = new Circle(0.5);
-        c1.translate(0, 1.5);
-        Circle c2 = new Circle(0.5);
-        c2.translate(0, 0.5);
-        BodyFixture f1 = new BodyFixture(c1);
-        BodyFixture f2 = new BodyFixture(c2);
-        f1.setDensity(1);
-        f2.setDensity(1);
-        playerBody.addFixture(f1);
-        playerBody.addFixture(f2);
-
-        playerBody.setMass(MassType.FIXED_ANGULAR_VELOCITY);
-        Transform playerStart = new Transform();
-        playerStart.setTranslation(new Vector2(15, 2));
-        playerBody.setTransform(playerStart);
-        world.addBody(playerBody);
-
+        playerBody.setType(BodyType.DYNAMIC);
+        Vec2 playerStart = new Vec2(15, 2);
+        float playerAngle = 0f;
+        playerBody.setTransform(playerStart, playerAngle);
 
         // set up tilemap
         TileMap tilemap = new TileMap(
@@ -103,20 +95,20 @@ public class GUI extends Application {
 
                 // movement
                 if (inputsPressed.get("up")) {
-                    playerBody.applyForce(new Force(0, 100));
+                    playerBody.applyForceToCenter(new Vec2(0, 100));
                 } else if (inputsPressed.get("down")) {
                     // for later
                 }
                 if (inputsPressed.get("left")) {
-                    playerBody.applyForce(new Force(-20, 0));
+                    playerBody.applyForceToCenter(new Vec2(-20, 0));
                 } else if (inputsPressed.get("right")) {
-                    playerBody.applyForce(new Force(20, 0));
+                    playerBody.applyForceToCenter(new Vec2(20, 0));
                 }
-//                playerBody.translate(0, 0.01);
 
-                world.update(((double) elapsedNanoSeconds) / 10e8);
-                Vector2 playerPos = playerBody.getWorldCenter();
-                Vector2 playerVel = playerBody.getLinearVelocity();
+                world.step((float)elapsedNanoSeconds / 1000000000.0f, 6, 2);
+                System.out.println(playerBody.getPosition());
+                Vec2 playerPos = playerBody.getPosition();
+                Vec2 playerVel = playerBody.getLinearVelocity();
 
                 cameraOffsetX += (-playerVel.x / 10 - cameraOffsetX) / 2;
                 cameraOffsetY += (playerVel.y / 10 - cameraOffsetY) / 2;
@@ -127,13 +119,16 @@ public class GUI extends Application {
                 tilemap.paint(scrollX, scrollY);
                 playerDisplayRect.setTranslateX((scrollX + playerBody.getWorldCenter().x) * TILE_SIZE);
                 playerDisplayRect.setTranslateY((scrollY - playerBody.getWorldCenter().y) * TILE_SIZE);
+
                 Rotate rotation = new Rotate();
                 rotation.setPivotX(0.5 * TILE_SIZE);
                 rotation.setPivotY(1 * TILE_SIZE);
-                rotation.setAngle(-Math.toDegrees(playerBody.getTransform().getRotation()));
+                rotation.setAngle(-Math.toDegrees(playerBody.getAngle()));
+
                 playerDisplayRect.getTransforms().clear();
                 playerDisplayRect.getTransforms().add(new Translate(TILE_SIZE * -0.5, TILE_SIZE * -1));
                 playerDisplayRect.getTransforms().add(rotation);
+
 
             }
 
