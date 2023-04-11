@@ -14,10 +14,7 @@ import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.dynamics.Force;
 import org.dyn4j.dynamics.World;
-import org.dyn4j.geometry.Mass;
-import org.dyn4j.geometry.Rectangle;
-import org.dyn4j.geometry.Transform;
-import org.dyn4j.geometry.Vector2;
+import org.dyn4j.geometry.*;
 
 public class GUI extends Application {
     private double scrollX;
@@ -32,11 +29,13 @@ public class GUI extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         final int TILE_SIZE = 25;
+        final int STAGE_WIDTH = 600;
+        final int STAGE_HEIGHT = 400;
         primaryStage.setTitle("Jaconde Test");
 
         // set up scene and group
         Group root = new Group();
-        Scene scene = new Scene(root, 600, 400, true);
+        Scene scene = new Scene(root, STAGE_WIDTH, STAGE_HEIGHT, true);
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -53,6 +52,7 @@ public class GUI extends Application {
         BodyFixture playerFixture = new BodyFixture(playerRect);
         playerFixture.setDensity(1);
         Mass bodyMass = playerFixture.createMass();
+        bodyMass.setType(MassType.FIXED_ANGULAR_VELOCITY);
         playerBody.addFixture(playerFixture);
         playerBody.setMass(bodyMass);
         Transform playerStart = new Transform();
