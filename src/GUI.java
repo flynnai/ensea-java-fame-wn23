@@ -25,12 +25,15 @@ public class GUI extends Application {
     private Dictionary<String, Boolean> inputsPressed;
     long startNanoTime;
 
+    private double cameraOffsetX;
+    private double cameraOffsetY;
+
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         final int TILE_SIZE = 25;
-        final int STAGE_WIDTH = 600;
-        final int STAGE_HEIGHT = 400;
+        final int STAGE_WIDTH = 1280;
+        final int STAGE_HEIGHT = 720;
         primaryStage.setTitle("Jaconde Test");
 
         // set up scene and group
@@ -47,14 +50,26 @@ public class GUI extends Application {
 
         // set up physics world
         World world = new World();
-        Rectangle playerRect = new Rectangle(1, 2);
         Body playerBody = new Body();
-        BodyFixture playerFixture = new BodyFixture(playerRect);
-        playerFixture.setDensity(1);
-        Mass bodyMass = playerFixture.createMass();
-        bodyMass.setType(MassType.FIXED_ANGULAR_VELOCITY);
-        playerBody.addFixture(playerFixture);
-        playerBody.setMass(bodyMass);
+
+        // rect player shape
+//        Rectangle playerRect = new Rectangle(1, 2);
+//        BodyFixture playerFixture = new BodyFixture(playerRect);
+//        playerBody.addFixture(playerFixture);
+
+        // two stacked circles shape
+        Circle c1 = new Circle(0.5);
+        c1.translate(0, 1.5);
+        Circle c2 = new Circle(0.5);
+        c2.translate(0, 0.5);
+        BodyFixture f1 = new BodyFixture(c1);
+        BodyFixture f2 = new BodyFixture(c2);
+        f1.setDensity(1);
+        f2.setDensity(1);
+        playerBody.addFixture(f1);
+        playerBody.addFixture(f2);
+
+        playerBody.setMass(MassType.FIXED_ANGULAR_VELOCITY);
         Transform playerStart = new Transform();
         playerStart.setTranslation(new Vector2(15, 2));
         playerBody.setTransform(playerStart);
@@ -75,10 +90,12 @@ public class GUI extends Application {
 
 
         // set up player JavaFX element
-        javafx.scene.shape.Rectangle playerDisplayRect = new javafx.scene.shape.Rectangle(1 * TILE_SIZE, 2 *  TILE_SIZE);
+        javafx.scene.shape.Rectangle playerDisplayRect = new javafx.scene.shape.Rectangle(1 * TILE_SIZE, 2 * TILE_SIZE);
         pane.getChildren().add(playerDisplayRect);
 
         startNanoTime = System.nanoTime();
+        cameraOffsetX = 0;
+        cameraOffsetY = 0;
         AnimationTimer timer = new AnimationTimer() {
             public void handle(long currentNanoTime) {
                 long elapsedNanoSeconds = currentNanoTime - startNanoTime;
@@ -95,11 +112,17 @@ public class GUI extends Application {
                 } else if (inputsPressed.get("right")) {
                     playerBody.applyForce(new Force(20, 0));
                 }
+//                playerBody.translate(0, 0.01);
 
                 world.update(((double) elapsedNanoSeconds) / 10e8);
-                Vector2 position = playerBody.getWorldCenter();
-                scrollX = -position.x + 5;
-                scrollY = position.y + 10;
+                Vector2 playerPos = playerBody.getWorldCenter();
+                Vector2 playerVel = playerBody.getLinearVelocity();
+
+                cameraOffsetX += (-playerVel.x / 10 - cameraOffsetX) / 2;
+                cameraOffsetY += (playerVel.y / 10 - cameraOffsetY) / 2;
+
+                scrollX = -playerPos.x + STAGE_WIDTH / TILE_SIZE / 2 + cameraOffsetX;
+                scrollY = playerPos.y + STAGE_HEIGHT / TILE_SIZE / 2 + cameraOffsetY;
 
                 tilemap.paint(scrollX, scrollY);
                 playerDisplayRect.setTranslateX((scrollX + playerBody.getWorldCenter().x) * TILE_SIZE);
