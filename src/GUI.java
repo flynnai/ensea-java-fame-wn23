@@ -178,17 +178,17 @@ public class GUI extends Application {
                 scrollY = playerPos.y + STAGE_HEIGHT / TILE_SIZE / 2 + cameraOffsetY;
 
                 tilemap.paint(scrollX, scrollY);
-                playerDisplayRect.setTranslateX((scrollX + playerBody.getWorldCenter().x) * TILE_SIZE);
-                playerDisplayRect.setTranslateY((scrollY - playerBody.getWorldCenter().y) * TILE_SIZE);
-
-                Rotate rotation = new Rotate();
-                rotation.setPivotX(0.5 * TILE_SIZE);
-                rotation.setPivotY(1 * TILE_SIZE);
-                rotation.setAngle(-Math.toDegrees(playerBody.getAngle()));
-
-                playerDisplayRect.getTransforms().clear();
-                playerDisplayRect.getTransforms().add(new Translate(TILE_SIZE * -0.5, TILE_SIZE * -1));
-                playerDisplayRect.getTransforms().add(rotation);
+//                playerDisplayRect.setTranslateX((scrollX + playerBody.getWorldCenter().x) * TILE_SIZE);
+//                playerDisplayRect.setTranslateY((scrollY - playerBody.getWorldCenter().y) * TILE_SIZE);
+                Utils.transformToScrollPosition(playerBody, playerDisplayRect, scrollX, scrollY, TILE_SIZE);
+//                Rotate rotation = new Rotate();
+//                rotation.setPivotX(0.5 * TILE_SIZE);
+//                rotation.setPivotY(1 * TILE_SIZE);
+//                rotation.setAngle(-Math.toDegrees(playerBody.getAngle()));
+//
+//                playerDisplayRect.getTransforms().clear();
+//                playerDisplayRect.getTransforms().add(new Translate(TILE_SIZE * -0.5, TILE_SIZE * -1));
+//                playerDisplayRect.getTransforms().add(rotation);
 
 
             }
