@@ -7,10 +7,14 @@ import javafx.scene.layout.Pane;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
+import org.jbox2d.callbacks.ContactImpulse;
+import org.jbox2d.callbacks.ContactListener;
+import org.jbox2d.collision.Manifold;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Transform;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
+import org.jbox2d.dynamics.contacts.Contact;
 
 import java.util.*;
 
@@ -26,6 +30,8 @@ public class GUI extends Application {
 
     private double cameraOffsetX;
     private double cameraOffsetY;
+
+    private boolean isTouchingGround = false;
 
 
     @Override
@@ -57,7 +63,9 @@ public class GUI extends Application {
 
         // rect player shape
         PolygonShape playerShape = new PolygonShape();
-        playerShape.setAsBox(0.5f, 1f, new Vec2(0, 1f), 0f);
+        final float PLAYER_WIDTH = 1f;
+        final float PLAYER_HEIGHT = 2f;
+        playerShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2, new Vec2(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2), 0f);
         FixtureDef playerFixture = new FixtureDef();
         playerFixture.shape = playerShape;
         playerFixture.density = 1f;
@@ -67,6 +75,57 @@ public class GUI extends Application {
         Vec2 playerStart = new Vec2(15, 2);
         float playerAngle = 0f;
         playerBody.setTransform(playerStart, playerAngle);
+
+
+        // Define a small rectangle to act as the collision detector
+        PolygonShape detectorShape = new PolygonShape();
+        detectorShape.setAsBox(PLAYER_WIDTH / 2 * 0.9f, PLAYER_HEIGHT / 2 * 0.1f, new Vec2(0, -PLAYER_HEIGHT / 2), 0f); // Adjust dimensions and position as needed
+
+// Create a fixture for the collision detector and attach it to the player body
+        FixtureDef detectorFixtureDef = new FixtureDef();
+        detectorFixtureDef.shape = detectorShape;
+        detectorFixtureDef.isSensor = true; // prevent physics interactions with other objcts
+        Fixture detectorFixture = playerBody.createFixture(detectorFixtureDef);
+
+// Define a class to handle collision events for the detector fixture
+        class GroundContactListener implements ContactListener {
+            public void beginContact(Contact contact) {
+                // Check if the collision is between the detector fixture and a ground tile
+                Fixture fixtureA = contact.getFixtureA();
+                Fixture fixtureB = contact.getFixtureB();
+                if ((fixtureA == detectorFixture && fixtureB.getUserData() == "ground") ||
+                        (fixtureB == detectorFixture && fixtureA.getUserData() == "ground")) {
+                    // Set a flag to indicate that the player is touching the ground
+                    isTouchingGround = true;
+                    System.out.println("Touched the ground!!!");
+                }
+            }
+
+            public void endContact(Contact contact) {
+                // Check if the collision is between the detector fixture and a ground tile
+                Fixture fixtureA = contact.getFixtureA();
+                Fixture fixtureB = contact.getFixtureB();
+                if ((fixtureA == detectorFixture && fixtureB.getUserData() == "ground") ||
+                        (fixtureB == detectorFixture && fixtureA.getUserData() == "ground")) {
+                    // Clear the flag to indicate that the player is no longer touching the ground
+                    isTouchingGround = false;
+                    System.out.println("Stopped touching the ground");
+                }
+            }
+
+            public void preSolve(Contact contact, Manifold oldManifold) {
+                // empty implementation here
+            }
+
+            public void postSolve(Contact contact, ContactImpulse impulse) {
+                // empty implementation here
+            }
+        }
+
+// Create a new instance of the contact listener and register it with the world
+        GroundContactListener contactListener = new GroundContactListener();
+        world.setContactListener(contactListener);
+
 
         // set up tilemap
         TileMap tilemap = new TileMap(
@@ -95,7 +154,10 @@ public class GUI extends Application {
 
                 // movement
                 if (inputsPressed.get("up")) {
-                    playerBody.applyForceToCenter(new Vec2(0, 100));
+                    if (isTouchingGround) {
+                        isTouchingGround = false; // TODO need better method of preventing 2-frame jump
+                        playerBody.applyForceToCenter(new Vec2(0, 1000));
+                    }
                 } else if (inputsPressed.get("down")) {
                     // for later
                 }
@@ -105,8 +167,7 @@ public class GUI extends Application {
                     playerBody.applyForceToCenter(new Vec2(20, 0));
                 }
 
-                world.step((float)elapsedNanoSeconds / 1000000000.0f, 6, 2);
-                System.out.println(playerBody.getPosition());
+                world.step((float) elapsedNanoSeconds / 1000000000.0f, 6, 2);
                 Vec2 playerPos = playerBody.getPosition();
                 Vec2 playerVel = playerBody.getLinearVelocity();
 

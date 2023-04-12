@@ -22,11 +22,12 @@ public class Tile {
             return;
         } else {
             PolygonShape squareShape = new PolygonShape();
-            squareShape.setAsBox(0.5f, 0.5f); // Half-width and half-height of the rectangle
+            squareShape.setAsBox(0.5f, 0.5f); // half-width and half-height of the rectangle
             FixtureDef squareFixture = new FixtureDef();
             squareFixture.shape = squareShape;
-            squareFixture.density = 0f; // Set to zero for infinite mass (static object)
-            squareFixture.friction = 0.2f; // Set friction to prevent sliding
+            squareFixture.density = 0f; // infinite mass (static object)
+            squareFixture.friction = 0.2f;
+            squareFixture.userData = "ground";
 
             BodyDef squareBodyDef = new BodyDef();
             squareBodyDef.type = BodyType.STATIC;
