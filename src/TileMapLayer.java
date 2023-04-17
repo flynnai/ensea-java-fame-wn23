@@ -68,10 +68,10 @@ public class TileMapLayer {
     public void paint(double scrollX, double scrollY) {
         int layerWidth = this.tileMatrix.get(0).size();
         int layerHeight = this.tileMatrix.size();
-
-        double interTileOffsetX = scrollX % 1;
+        double interTileOffsetX = (-scrollX) % 1;
+        // since javaFX draws down, scrollY is already "negative" and doesn't need to be flipped
         double interTileOffsetY = scrollY % 1;
-        int startCol = (int) (scrollX - interTileOffsetX);
+        int startCol = (int) ((-scrollX) - interTileOffsetX);
         int startRow = (int) (scrollY - interTileOffsetY);
         for (int viewportRowNum = 0; viewportRowNum < this.tileViews.size(); viewportRowNum++) {
             List<ImageView> viewportRow = this.tileViews.get(viewportRowNum);

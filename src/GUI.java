@@ -4,6 +4,8 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
@@ -32,6 +34,7 @@ public class GUI extends Application {
     private double cameraOffsetY;
 
     private boolean isTouchingGround = false;
+    private int numTouchingGround = 0;
 
 
     @Override
@@ -65,7 +68,7 @@ public class GUI extends Application {
         PolygonShape playerShape = new PolygonShape();
         final float PLAYER_WIDTH = 1f;
         final float PLAYER_HEIGHT = 2f;
-        playerShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2, new Vec2(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2), 0f);
+        playerShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2, new Vec2(0, 0), 0f);
         FixtureDef playerFixture = new FixtureDef();
         playerFixture.shape = playerShape;
         playerFixture.density = 1f;
@@ -77,17 +80,21 @@ public class GUI extends Application {
         playerBody.setTransform(playerStart, playerAngle);
 
 
-        // Define a small rectangle to act as the collision detector
+        // define a small rectangle to act as the collision detector
         PolygonShape detectorShape = new PolygonShape();
-        detectorShape.setAsBox(PLAYER_WIDTH / 2 * 0.9f, PLAYER_HEIGHT / 2 * 0.1f, new Vec2(0, -PLAYER_HEIGHT / 2), 0f); // Adjust dimensions and position as needed
+        final float DETECTOR_WIDTH = PLAYER_WIDTH * 0.9f;
+        final float DETECTOR_HEIGHT = PLAYER_HEIGHT * 0.1f;
+        detectorShape.setAsBox(DETECTOR_WIDTH / 2, DETECTOR_HEIGHT / 2, new Vec2(0, -PLAYER_HEIGHT / 2), 0f); // Adjust dimensions and position as needed
+        Rectangle detectorDisplayRect = new Rectangle(DETECTOR_WIDTH * TILE_SIZE, DETECTOR_HEIGHT * TILE_SIZE);
+        pane.getChildren().add(detectorDisplayRect);
 
-// Create a fixture for the collision detector and attach it to the player body
+        // Create a fixture for the collision detector and attach it to the player body
         FixtureDef detectorFixtureDef = new FixtureDef();
         detectorFixtureDef.shape = detectorShape;
-        detectorFixtureDef.isSensor = true; // prevent physics interactions with other objcts
+        detectorFixtureDef.isSensor = true; // prevent physics interactions with other objects
         Fixture detectorFixture = playerBody.createFixture(detectorFixtureDef);
 
-// Define a class to handle collision events for the detector fixture
+        // Define a class to handle collision events for the detector fixture
         class GroundContactListener implements ContactListener {
             public void beginContact(Contact contact) {
                 // Check if the collision is between the detector fixture and a ground tile
@@ -96,6 +103,7 @@ public class GUI extends Application {
                 if ((fixtureA == detectorFixture && fixtureB.getUserData() == "ground") ||
                         (fixtureB == detectorFixture && fixtureA.getUserData() == "ground")) {
                     // Set a flag to indicate that the player is touching the ground
+                    numTouchingGround++;
                     isTouchingGround = true;
                     System.out.println("Touched the ground!!!");
                 }
@@ -108,7 +116,8 @@ public class GUI extends Application {
                 if ((fixtureA == detectorFixture && fixtureB.getUserData() == "ground") ||
                         (fixtureB == detectorFixture && fixtureA.getUserData() == "ground")) {
                     // Clear the flag to indicate that the player is no longer touching the ground
-                    isTouchingGround = false;
+                    numTouchingGround--;
+                    isTouchingGround = numTouchingGround > 0;
                     System.out.println("Stopped touching the ground");
                 }
             }
@@ -141,8 +150,12 @@ public class GUI extends Application {
 
 
         // set up player JavaFX element
-        javafx.scene.shape.Rectangle playerDisplayRect = new javafx.scene.shape.Rectangle(1 * TILE_SIZE, 2 * TILE_SIZE);
+        Rectangle playerDisplayRect = new Rectangle(1 * TILE_SIZE, 2 * TILE_SIZE);
         pane.getChildren().add(playerDisplayRect);
+
+
+        detectorDisplayRect.toFront();
+
 
         startNanoTime = System.nanoTime();
         cameraOffsetX = 0;
@@ -171,26 +184,21 @@ public class GUI extends Application {
                 Vec2 playerPos = playerBody.getPosition();
                 Vec2 playerVel = playerBody.getLinearVelocity();
 
-                cameraOffsetX += (-playerVel.x / 10 - cameraOffsetX) / 2;
-                cameraOffsetY += (playerVel.y / 10 - cameraOffsetY) / 2;
+//                cameraOffsetX += (-playerVel.x / 10 - cameraOffsetX) / 2;
+//                cameraOffsetY += (playerVel.y / 10 - cameraOffsetY) / 2;
 
-                scrollX = -playerPos.x + STAGE_WIDTH / TILE_SIZE / 2 + cameraOffsetX;
+                // scrollX, scrollY are coordinates of top left corner of screen
+                scrollX = playerPos.x - STAGE_WIDTH / TILE_SIZE / 2 + cameraOffsetX;
                 scrollY = playerPos.y + STAGE_HEIGHT / TILE_SIZE / 2 + cameraOffsetY;
 
                 tilemap.paint(scrollX, scrollY);
-//                playerDisplayRect.setTranslateX((scrollX + playerBody.getWorldCenter().x) * TILE_SIZE);
-//                playerDisplayRect.setTranslateY((scrollY - playerBody.getWorldCenter().y) * TILE_SIZE);
-                Utils.transformToScrollPosition(playerBody, playerDisplayRect, scrollX, scrollY, TILE_SIZE);
-//                Rotate rotation = new Rotate();
-//                rotation.setPivotX(0.5 * TILE_SIZE);
-//                rotation.setPivotY(1 * TILE_SIZE);
-//                rotation.setAngle(-Math.toDegrees(playerBody.getAngle()));
-//
-//                playerDisplayRect.getTransforms().clear();
-//                playerDisplayRect.getTransforms().add(new Translate(TILE_SIZE * -0.5, TILE_SIZE * -1));
-//                playerDisplayRect.getTransforms().add(rotation);
-
-
+                Utils.transformToScrollPosition(playerBody, playerShape, playerDisplayRect, scrollX, scrollY, TILE_SIZE);
+                if (isTouchingGround) {
+                    detectorDisplayRect.setFill(Color.GREEN);
+                } else {
+                    detectorDisplayRect.setFill(Color.DARKRED);
+                }
+                Utils.transformToScrollPosition(playerBody, detectorShape, detectorDisplayRect, scrollX, scrollY, TILE_SIZE);
             }
 
         };
