@@ -27,7 +27,7 @@ public class GUI extends Application {
     private double sx;
     private double sy;
 
-    private Dictionary<String, Boolean> inputsPressed;
+    private Dictionary<UserInput, Boolean> inputsPressed;
     long startNanoTime;
 
     private double cameraOffsetX;
@@ -166,17 +166,17 @@ public class GUI extends Application {
                 startNanoTime = currentNanoTime;
 
                 // movement
-                if (inputsPressed.get("up")) {
+                if (inputsPressed.get(UserInput.UP)) {
                     if (isTouchingGround) {
                         isTouchingGround = false; // TODO need better method of preventing 2-frame jump
                         playerBody.applyForceToCenter(new Vec2(0, 1000));
                     }
-                } else if (inputsPressed.get("down")) {
+                } else if (inputsPressed.get(UserInput.DOWN)) {
                     // for later
                 }
-                if (inputsPressed.get("left")) {
+                if (inputsPressed.get(UserInput.LEFT)) {
                     playerBody.applyForceToCenter(new Vec2(-20, 0));
-                } else if (inputsPressed.get("right")) {
+                } else if (inputsPressed.get(UserInput.RIGHT)) {
                     playerBody.applyForceToCenter(new Vec2(20, 0));
                 }
 
@@ -207,58 +207,8 @@ public class GUI extends Application {
 
         // set up inputs
         inputsPressed = new Hashtable<>();
-        inputsPressed.put("up", false);
-        inputsPressed.put("down", false);
-        inputsPressed.put("left", false);
-        inputsPressed.put("right", false);
+        InputManager inputManager = new InputManager(scene, inputsPressed);
 
-        scene.setOnKeyPressed(keyEvent -> {
-            switch (keyEvent.getCode()) {
-                case UP:
-                case W:
-                    inputsPressed.put("up", true);
-                    break;
-                case DOWN:
-                case S:
-                    inputsPressed.put("down", true);
-                    break;
-                case LEFT:
-                case A:
-                    inputsPressed.put("left", true);
-                    break;
-                case RIGHT:
-                case D:
-                    inputsPressed.put("right", true);
-                    break;
-                default:
-                    break;
-            }
-
-        });
-
-        scene.setOnKeyReleased(keyEvent -> {
-            switch (keyEvent.getCode()) {
-                case UP:
-                case W:
-                    inputsPressed.put("up", false);
-                    break;
-                case DOWN:
-                case S:
-                    inputsPressed.put("down", false);
-                    break;
-                case LEFT:
-                case A:
-                    inputsPressed.put("left", false);
-                    break;
-                case RIGHT:
-                case D:
-                    inputsPressed.put("right", false);
-                    break;
-                default:
-                    break;
-            }
-
-        });
     }
 
     public static void main(String[] args) {
