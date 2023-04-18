@@ -54,8 +54,9 @@ public class TileMapLayer implements GameConstants {
             ArrayList<ImageView> row = new ArrayList<>();
             for (int j = 0; j < viewportColCount; j++) {
                 ImageView tileView = new ImageView(spriteSheet);
-                tileView.setFitWidth(TILE_SIZE);
-                tileView.setFitHeight(TILE_SIZE);
+                // Add 1 to tile size to remove 1px lines between
+                tileView.setFitWidth(TILE_SIZE + 1);
+                tileView.setFitHeight(TILE_SIZE + 1);
                 pane.getChildren().add(tileView);
                 row.add(tileView);
             }

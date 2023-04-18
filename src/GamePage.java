@@ -20,6 +20,7 @@ public class GamePage implements GameConstants {
     private World world;
     private Camera camera;
     private TileMap tileMap;
+    FPSCounter fpsCounter;
     public GamePage() throws Exception {
         // set up root node and create scene with it
         Group root = new Group();
@@ -52,6 +53,9 @@ public class GamePage implements GameConstants {
                 world
         );
 
+        // set up FPS counter
+        fpsCounter = new FPSCounter(pane);
+
         // set up input keypress listeners
         inputsPressed = new Hashtable<>();
         InputManager inputManager = new InputManager(scene, inputsPressed);
@@ -61,9 +65,9 @@ public class GamePage implements GameConstants {
                 // find amount of time passed since last loop run
                 long elapsedNanoSeconds = currentNanoTime - startNanoTime;
                 startNanoTime = currentNanoTime;
-                double timeDeltaSeconds = elapsedNanoSeconds / 1000000000.0f;
-
-                move(timeDeltaSeconds);
+                double timeDeltaSeconds = elapsedNanoSeconds / 1000000000.0;
+                double currentSecondsTime = currentNanoTime / 1000000000.0;
+                move(currentSecondsTime, timeDeltaSeconds);
 
                 paint();
             }
@@ -73,7 +77,7 @@ public class GamePage implements GameConstants {
         this.startLoop();
     }
 
-    private void move(double timeDeltaSeconds) {
+    private void move(double currentSecondsTime, double timeDeltaSeconds) {
         // MOVE all entities, and the camera
         // apply physics to bodies
         player.move(inputsPressed);
@@ -81,6 +85,9 @@ public class GamePage implements GameConstants {
         world.step((float) timeDeltaSeconds, 6, 2);
         // move the camera according to new positions
         camera.move(timeDeltaSeconds);
+        // update the FPS counter's frame count
+        fpsCounter.move(currentSecondsTime);
+
     }
 
     private void paint() {
@@ -91,6 +98,7 @@ public class GamePage implements GameConstants {
 
         tileMap.paint(scrollX, scrollY);
         player.paint(scrollX, scrollY);
+        fpsCounter.paint();
     }
 
     public Scene getScene() {
