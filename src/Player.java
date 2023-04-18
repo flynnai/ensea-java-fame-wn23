@@ -128,14 +128,6 @@ public class Player implements GameConstants {
         Utils.transformToScrollPosition(playerBody, detectorShape, detectorDisplayRect, scrollX, scrollY, TILE_SIZE);
     }
 
-//    public float getPlayerHeight() {
-//        return PLAYER_HEIGHT;
-//    }
-//
-//    public float getPlayerWidth() {
-//        return PLAYER_WIDTH;
-//    }
-
     public boolean isTouchingGround() {
         return numTouchingGround > 0;
     }

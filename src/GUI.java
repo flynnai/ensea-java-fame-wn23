@@ -22,17 +22,9 @@ import java.util.*;
 
 
 public class GUI extends Application implements GameConstants {
-    private double scrollX;
-    private double scrollY;
-    private double cameraOffsetX;
-    private double cameraOffsetY;
 
     private Dictionary<UserInput, Boolean> inputsPressed;
     long startNanoTime;
-
-
-
-
 
 
     @Override
@@ -58,9 +50,6 @@ public class GUI extends Application implements GameConstants {
         Player player = new Player(world, pane);
 
 
-
-
-
         // set up tilemap
         TileMap tilemap = new TileMap(
                 "./img/sprite_sheets/mario_tileset.png",
@@ -73,35 +62,34 @@ public class GUI extends Application implements GameConstants {
         );
 
 
-
-        // set up inputs
+        // set up input keypress listeners
         inputsPressed = new Hashtable<>();
         InputManager inputManager = new InputManager(scene, inputsPressed);
 
         startNanoTime = System.nanoTime();
-        cameraOffsetX = 0;
-        cameraOffsetY = 0;
+        Camera camera = new Camera(player);
         AnimationTimer timer = new AnimationTimer() {
             public void handle(long currentNanoTime) {
                 long elapsedNanoSeconds = currentNanoTime - startNanoTime;
                 startNanoTime = currentNanoTime;
+                // get fraction of second elapsed
+                double timeDelta = elapsedNanoSeconds / 1000000000.0f;
 
-                // movement
+                // MOVE all entities, and the camera
+                // apply physics to bodies
                 player.move(inputsPressed);
+                // move the world
+                world.step((float) timeDelta, 6, 2);
+                // move the camera according to new positions
+                camera.move(timeDelta);
 
-                world.step((float) elapsedNanoSeconds / 1000000000.0f, 6, 2);
-                Vec2 playerPos = player.getWorldPosition();
-
-//                cameraOffsetX += (-playerVel.x / 10 - cameraOffsetX) / 2;
-//                cameraOffsetY += (playerVel.y / 10 - cameraOffsetY) / 2;
-
-                // scrollX, scrollY are coordinates of top left corner of screen
-                scrollX = playerPos.x - STAGE_WIDTH / TILE_SIZE / 2 + cameraOffsetX;
-                scrollY = playerPos.y + STAGE_HEIGHT / TILE_SIZE / 2 + cameraOffsetY;
+                // PAINT all entities in the correct positions
+                // note: scrollX, scrollY are coordinates of top left corner of screen
+                double scrollX = camera.getScrollX();
+                double scrollY = camera.getScrollY();
 
                 tilemap.paint(scrollX, scrollY);
                 player.paint(scrollX, scrollY);
-
             }
 
         };

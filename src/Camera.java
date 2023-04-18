@@ -1,11 +1,22 @@
-public class Camera {
+import org.jbox2d.common.Vec2;
+
+public class Camera implements GameConstants {
     private double scrollX;
     private double scrollY;
+    private Player player;
+
     public Camera(Player player) {
-        // TODO set init scrollX, scrollY values
+        this.player = player;
+        Vec2 playerPos = player.getWorldPosition();
+        scrollX = playerPos.x - STAGE_WIDTH / TILE_SIZE / 2;
+        scrollY = playerPos.y + STAGE_HEIGHT / TILE_SIZE / 2;
     }
 
-    public void move(Player player) {
+    public void move(double timeDelta) {
+        Vec2 playerPos = player.getWorldPosition();
+        // TODO this timeDelta logic will break for >1 second timeDelta's
+        scrollX += ((playerPos.x - STAGE_WIDTH / TILE_SIZE / 2) - scrollX) * timeDelta * 2;
+        scrollY += ((playerPos.y + STAGE_HEIGHT / TILE_SIZE / 2) - scrollY) * timeDelta * 2;
     }
 
     public double getScrollX() {
