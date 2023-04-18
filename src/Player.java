@@ -4,6 +4,7 @@ import javafx.scene.shape.Rectangle;
 import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.Manifold;
+import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
@@ -30,12 +31,38 @@ public class Player implements GameConstants {
         playerBody = world.createBody(playerBodyDef);
 
         // rectangular player shape
+        //        playerShape = new PolygonShape();
+        //        playerShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2, new Vec2(0, 0), 0f);
+        //        FixtureDef playerFixture = new FixtureDef();
+        //        playerFixture.shape = playerShape;
+        //        playerFixture.density = 1f;
+        //        playerFixture.friction = 1f;
+        //        playerBody.createFixture(playerFixture);
+
+        // rectangle with rounded bottom player shape
+        PolygonShape rectShape = new PolygonShape();
+        rectShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT * 3 / 4 / 2, new Vec2(0, PLAYER_HEIGHT / 8), 0f);
+        FixtureDef playerFixture = new FixtureDef();
+        playerFixture.shape = rectShape;
+        playerFixture.density = 1f;
+        playerFixture.friction = 1f;
+
+        // circular bottom to allow smooth movement
+        CircleShape circleShape = new CircleShape();
+        circleShape.setRadius(PLAYER_WIDTH / 2);
+        circleShape.m_p.set(0, -PLAYER_HEIGHT * 1 / 4);
+
+        FixtureDef circleFixture = new FixtureDef();
+        circleFixture.shape = circleShape;
+        circleFixture.density = 1f;
+        circleFixture.friction = 1f;
+
+        playerBody.createFixture(playerFixture);
+        playerBody.createFixture(circleFixture);
+
+        // rectangular player "display area" shape, no physics, for mapping the sprite to
         playerShape = new PolygonShape();
         playerShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2, new Vec2(0, 0), 0f);
-        FixtureDef playerFixture = new FixtureDef();
-        playerFixture.shape = playerShape;
-        playerFixture.density = 1f;
-        playerBody.createFixture(playerFixture);
 
         playerBody.setType(BodyType.DYNAMIC);
         Vec2 playerStart = new Vec2(15, 2);
@@ -107,7 +134,7 @@ public class Player implements GameConstants {
             framesUntilCanJump--;
         } else if (inputsPressed.get(UserInput.UP)) {
             if (this.isTouchingGround()) {
-                playerBody.applyForceToCenter(new Vec2(0, 1300));
+                playerBody.applyForceToCenter(new Vec2(0, 1500));
                 // we want 1 force applied to jump, only 1 time
                 framesUntilCanJump = 15;
             }
@@ -116,21 +143,27 @@ public class Player implements GameConstants {
         if (inputsPressed.get(UserInput.DOWN)) {
             // for later
         }
+        Vec2 playerVel = playerBody.getLinearVelocity();
         if (inputsPressed.get(UserInput.LEFT)) {
-            playerBody.applyForceToCenter(new Vec2(-20, 0));
+            if ((double) playerVel.x > -PLAYER_MAX_SPEED) {
+                playerBody.applyForceToCenter(new Vec2(-80, 0));
+
+            }
         } else if (inputsPressed.get(UserInput.RIGHT)) {
-            playerBody.applyForceToCenter(new Vec2(20, 0));
+            if ((double) playerVel.x < PLAYER_MAX_SPEED) {
+                playerBody.applyForceToCenter(new Vec2(80, 0));
+            }
         }
     }
 
     public void paint(double scrollX, double scrollY) {
-        Utils.transformToScrollPosition(playerBody, playerShape, playerDisplayRect, scrollX, scrollY, TILE_SIZE);
+        Utils.transformToScrollPosition(playerBody, playerShape, playerDisplayRect, scrollX, scrollY);
         if (this.isTouchingGround()) {
             detectorDisplayRect.setFill(Color.GREEN);
         } else {
             detectorDisplayRect.setFill(Color.DARKRED);
         }
-        Utils.transformToScrollPosition(playerBody, detectorShape, detectorDisplayRect, scrollX, scrollY, TILE_SIZE);
+        Utils.transformToScrollPosition(playerBody, detectorShape, detectorDisplayRect, scrollX, scrollY);
     }
 
     public boolean isTouchingGround() {
