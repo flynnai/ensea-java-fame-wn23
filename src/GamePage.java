@@ -36,12 +36,6 @@ public class GamePage implements GameConstants {
         // set up physics world
         world = new World(new Vec2(0, -9.81f));
 
-        // set up player in world
-        player = new Player(world, pane);
-
-        // set up camera to follow player
-        camera = new Camera(player);
-
         // set up tilemap
         tileMap = new TileMap(
                 "./img/sprite_sheets/mario_tileset.png",
@@ -52,6 +46,12 @@ public class GamePage implements GameConstants {
                 new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()),
                 world
         );
+
+        // set up player in world
+        player = new Player(world, pane);
+
+        // set up camera to follow player
+        camera = new Camera(player);
 
         // set up FPS counter
         fpsCounter = new FPSCounter(pane);
