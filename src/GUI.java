@@ -21,27 +21,22 @@ import org.jbox2d.dynamics.contacts.Contact;
 import java.util.*;
 
 
-public class GUI extends Application {
+public class GUI extends Application implements GameConstants {
     private double scrollX;
     private double scrollY;
-    private double sx;
-    private double sy;
+    private double cameraOffsetX;
+    private double cameraOffsetY;
 
     private Dictionary<UserInput, Boolean> inputsPressed;
     long startNanoTime;
 
-    private double cameraOffsetX;
-    private double cameraOffsetY;
 
-    private boolean isTouchingGround = false;
-    private int numTouchingGround = 0;
+
+
 
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        final int TILE_SIZE = 25;
-        final int STAGE_WIDTH = 1280;
-        final int STAGE_HEIGHT = 720;
         primaryStage.setTitle("Jaconde Test");
 
         // set up scene and group
@@ -59,81 +54,11 @@ public class GUI extends Application {
 
         // set up physics world
         World world = new World(new Vec2(0, -9.81f));
-        BodyDef playerBodyDef = new BodyDef();
-        playerBodyDef.fixedRotation = true;
-        Body playerBody = world.createBody(playerBodyDef);
+
+        Player player = new Player(world, pane);
 
 
-        // rect player shape
-        PolygonShape playerShape = new PolygonShape();
-        final float PLAYER_WIDTH = 1f;
-        final float PLAYER_HEIGHT = 2f;
-        playerShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2, new Vec2(0, 0), 0f);
-        FixtureDef playerFixture = new FixtureDef();
-        playerFixture.shape = playerShape;
-        playerFixture.density = 1f;
-        playerBody.createFixture(playerFixture);
 
-        playerBody.setType(BodyType.DYNAMIC);
-        Vec2 playerStart = new Vec2(15, 2);
-        float playerAngle = 0f;
-        playerBody.setTransform(playerStart, playerAngle);
-
-
-        // define a small rectangle to act as the collision detector
-        PolygonShape detectorShape = new PolygonShape();
-        final float DETECTOR_WIDTH = PLAYER_WIDTH * 0.9f;
-        final float DETECTOR_HEIGHT = PLAYER_HEIGHT * 0.1f;
-        detectorShape.setAsBox(DETECTOR_WIDTH / 2, DETECTOR_HEIGHT / 2, new Vec2(0, -PLAYER_HEIGHT / 2), 0f); // Adjust dimensions and position as needed
-        Rectangle detectorDisplayRect = new Rectangle(DETECTOR_WIDTH * TILE_SIZE, DETECTOR_HEIGHT * TILE_SIZE);
-        pane.getChildren().add(detectorDisplayRect);
-
-        // Create a fixture for the collision detector and attach it to the player body
-        FixtureDef detectorFixtureDef = new FixtureDef();
-        detectorFixtureDef.shape = detectorShape;
-        detectorFixtureDef.isSensor = true; // prevent physics interactions with other objects
-        Fixture detectorFixture = playerBody.createFixture(detectorFixtureDef);
-
-        // Define a class to handle collision events for the detector fixture
-        class GroundContactListener implements ContactListener {
-            public void beginContact(Contact contact) {
-                // Check if the collision is between the detector fixture and a ground tile
-                Fixture fixtureA = contact.getFixtureA();
-                Fixture fixtureB = contact.getFixtureB();
-                if ((fixtureA == detectorFixture && fixtureB.getUserData() == "ground") ||
-                        (fixtureB == detectorFixture && fixtureA.getUserData() == "ground")) {
-                    // Set a flag to indicate that the player is touching the ground
-                    numTouchingGround++;
-                    isTouchingGround = true;
-                    System.out.println("Touched the ground!!!");
-                }
-            }
-
-            public void endContact(Contact contact) {
-                // Check if the collision is between the detector fixture and a ground tile
-                Fixture fixtureA = contact.getFixtureA();
-                Fixture fixtureB = contact.getFixtureB();
-                if ((fixtureA == detectorFixture && fixtureB.getUserData() == "ground") ||
-                        (fixtureB == detectorFixture && fixtureA.getUserData() == "ground")) {
-                    // Clear the flag to indicate that the player is no longer touching the ground
-                    numTouchingGround--;
-                    isTouchingGround = numTouchingGround > 0;
-                    System.out.println("Stopped touching the ground");
-                }
-            }
-
-            public void preSolve(Contact contact, Manifold oldManifold) {
-                // empty implementation here
-            }
-
-            public void postSolve(Contact contact, ContactImpulse impulse) {
-                // empty implementation here
-            }
-        }
-
-// Create a new instance of the contact listener and register it with the world
-        GroundContactListener contactListener = new GroundContactListener();
-        world.setContactListener(contactListener);
 
 
         // set up tilemap
@@ -144,18 +69,14 @@ public class GUI extends Application {
                 "./data/tile_maps/mario4_format2.json",
                 pane,
                 new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()),
-                TILE_SIZE,
                 world
         );
 
 
-        // set up player JavaFX element
-        Rectangle playerDisplayRect = new Rectangle(1 * TILE_SIZE, 2 * TILE_SIZE);
-        pane.getChildren().add(playerDisplayRect);
 
-
-        detectorDisplayRect.toFront();
-
+        // set up inputs
+        inputsPressed = new Hashtable<>();
+        InputManager inputManager = new InputManager(scene, inputsPressed);
 
         startNanoTime = System.nanoTime();
         cameraOffsetX = 0;
@@ -166,23 +87,10 @@ public class GUI extends Application {
                 startNanoTime = currentNanoTime;
 
                 // movement
-                if (inputsPressed.get(UserInput.UP)) {
-                    if (isTouchingGround) {
-                        isTouchingGround = false; // TODO need better method of preventing 2-frame jump
-                        playerBody.applyForceToCenter(new Vec2(0, 1000));
-                    }
-                } else if (inputsPressed.get(UserInput.DOWN)) {
-                    // for later
-                }
-                if (inputsPressed.get(UserInput.LEFT)) {
-                    playerBody.applyForceToCenter(new Vec2(-20, 0));
-                } else if (inputsPressed.get(UserInput.RIGHT)) {
-                    playerBody.applyForceToCenter(new Vec2(20, 0));
-                }
+                player.move(inputsPressed);
 
                 world.step((float) elapsedNanoSeconds / 1000000000.0f, 6, 2);
-                Vec2 playerPos = playerBody.getPosition();
-                Vec2 playerVel = playerBody.getLinearVelocity();
+                Vec2 playerPos = player.getWorldPosition();
 
 //                cameraOffsetX += (-playerVel.x / 10 - cameraOffsetX) / 2;
 //                cameraOffsetY += (playerVel.y / 10 - cameraOffsetY) / 2;
@@ -192,22 +100,12 @@ public class GUI extends Application {
                 scrollY = playerPos.y + STAGE_HEIGHT / TILE_SIZE / 2 + cameraOffsetY;
 
                 tilemap.paint(scrollX, scrollY);
-                Utils.transformToScrollPosition(playerBody, playerShape, playerDisplayRect, scrollX, scrollY, TILE_SIZE);
-                if (isTouchingGround) {
-                    detectorDisplayRect.setFill(Color.GREEN);
-                } else {
-                    detectorDisplayRect.setFill(Color.DARKRED);
-                }
-                Utils.transformToScrollPosition(playerBody, detectorShape, detectorDisplayRect, scrollX, scrollY, TILE_SIZE);
+                player.paint(scrollX, scrollY);
+
             }
 
         };
         timer.start();
-
-
-        // set up inputs
-        inputsPressed = new Hashtable<>();
-        InputManager inputManager = new InputManager(scene, inputsPressed);
 
     }
 

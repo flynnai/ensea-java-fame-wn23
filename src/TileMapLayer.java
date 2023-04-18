@@ -11,16 +11,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class TileMapLayer {
+public class TileMapLayer implements GameConstants {
     public List<List<Tile>> tileMatrix;
     public List<List<ImageView>> tileViews;
     public Rectangle2D viewport;
     private Image spriteSheet;
     private int tileSizePx;
     private int tilePaddingPx;
-    private int displayTileSizePx;
 
-    public TileMapLayer(JSONObject tilesJson, int mapWidth, int mapHeight, Rectangle2D viewport, int tileSizePx, int tilePaddingPx, Image spriteSheet, int displayTileSizePx, Pane pane, World world) {
+    public TileMapLayer(JSONObject tilesJson, int mapWidth, int mapHeight, Rectangle2D viewport, int tileSizePx, int tilePaddingPx, Image spriteSheet, Pane pane, World world) {
         List<List<Tile>> tileMatrix = new ArrayList<>();
         // initialize to all `null`'s
         for (int i = 0; i < mapHeight; i++) {
@@ -46,18 +45,17 @@ public class TileMapLayer {
         }
 
         this.tileMatrix = tileMatrix;
-        int viewportColCount = (int) Math.ceil(viewport.getWidth() / displayTileSizePx) + 1;
-        int viewportRowCount = (int) Math.ceil(viewport.getHeight() / displayTileSizePx) + 1;
+        int viewportColCount = (int) Math.ceil(viewport.getWidth() / TILE_SIZE) + 1;
+        int viewportRowCount = (int) Math.ceil(viewport.getHeight() / TILE_SIZE) + 1;
         this.tileSizePx = tileSizePx;
         this.tilePaddingPx = tilePaddingPx;
-        this.displayTileSizePx = displayTileSizePx;
         tileViews = new ArrayList<>();
         for (int i = 0; i < viewportRowCount; i++) {
             ArrayList<ImageView> row = new ArrayList<>();
             for (int j = 0; j < viewportColCount; j++) {
                 ImageView tileView = new ImageView(spriteSheet);
-                tileView.setFitWidth(displayTileSizePx);
-                tileView.setFitHeight(displayTileSizePx);
+                tileView.setFitWidth(TILE_SIZE);
+                tileView.setFitHeight(TILE_SIZE);
                 pane.getChildren().add(tileView);
                 row.add(tileView);
             }
@@ -95,8 +93,8 @@ public class TileMapLayer {
                         this.tileSizePx
                 ));
                 tileView.relocate(
-                        displayTileSizePx * (viewportColNum + interTileOffsetX),
-                        displayTileSizePx * (viewportRowNum + interTileOffsetY)
+                        TILE_SIZE * (viewportColNum + interTileOffsetX),
+                        TILE_SIZE * (viewportRowNum + interTileOffsetY)
                 );
             }
         }

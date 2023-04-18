@@ -18,7 +18,7 @@ import java.util.List;
 public class TileMap {
     private List<TileMapLayer> layers;
 
-    public TileMap(String spriteSheetPath, int tileSizePx, int tilePaddingPx, String tileMapPath, Pane pane, Rectangle2D gameViewport, int displayTileSizePx, World world) throws FileNotFoundException {
+    public TileMap(String spriteSheetPath, int tileSizePx, int tilePaddingPx, String tileMapPath, Pane pane, Rectangle2D gameViewport, World world) throws FileNotFoundException {
         // TODO we can use embedded JSON base64 spritesheet instead
         Image spriteSheet = new Image("file:" + spriteSheetPath);
 
@@ -45,7 +45,6 @@ public class TileMap {
                     tileSizePx,
                     tilePaddingPx,
                     spriteSheet,
-                    displayTileSizePx,
                     pane,
                     layerNum == 1 ? world : null // only have physics for layer 1
             );
