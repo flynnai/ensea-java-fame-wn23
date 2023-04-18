@@ -21,6 +21,8 @@ public class Player implements GameConstants {
     PolygonShape detectorShape;
     Rectangle detectorDisplayRect;
 
+    int framesUntilCanJump = 0;
+
 
     public Player(World world, Pane pane) {
         BodyDef playerBodyDef = new BodyDef();
@@ -64,7 +66,6 @@ public class Player implements GameConstants {
                         (fixtureB == detectorFixture && fixtureA.getUserData() == "ground")) {
                     // increment the number of 'ground' objects we're touching by 1
                     numTouchingGround++;
-                    System.out.println("Touched a ground piece!!!");
                 }
             }
 
@@ -76,7 +77,6 @@ public class Player implements GameConstants {
                         (fixtureB == detectorFixture && fixtureA.getUserData() == "ground")) {
                     // increment the number of 'ground' objects we're touching by 1
                     numTouchingGround--;
-                    System.out.println("Stopped touching a ground piece");
                 }
             }
 
@@ -103,12 +103,17 @@ public class Player implements GameConstants {
     }
 
     public void move(Dictionary<UserInput, Boolean> inputsPressed) {
-        if (inputsPressed.get(UserInput.UP)) {
+        if (framesUntilCanJump > 0) {
+            framesUntilCanJump--;
+        } else if (inputsPressed.get(UserInput.UP)) {
             if (this.isTouchingGround()) {
-                // TODO need method of preventing 2-frame jump
-                playerBody.applyForceToCenter(new Vec2(0, 1000));
+                playerBody.applyForceToCenter(new Vec2(0, 1300));
+                // we want 1 force applied to jump, only 1 time
+                framesUntilCanJump = 15;
             }
-        } else if (inputsPressed.get(UserInput.DOWN)) {
+        }
+
+        if (inputsPressed.get(UserInput.DOWN)) {
             // for later
         }
         if (inputsPressed.get(UserInput.LEFT)) {
