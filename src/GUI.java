@@ -47,8 +47,11 @@ public class GUI extends Application implements GameConstants {
         // set up physics world
         World world = new World(new Vec2(0, -9.81f));
 
+        // set up player in world
         Player player = new Player(world, pane);
 
+        // set up camera to follow player
+        Camera camera = new Camera(player);
 
         // set up tilemap
         TileMap tilemap = new TileMap(
@@ -61,27 +64,27 @@ public class GUI extends Application implements GameConstants {
                 world
         );
 
-
         // set up input keypress listeners
         inputsPressed = new Hashtable<>();
         InputManager inputManager = new InputManager(scene, inputsPressed);
 
+        // initialize time
         startNanoTime = System.nanoTime();
-        Camera camera = new Camera(player);
         AnimationTimer timer = new AnimationTimer() {
             public void handle(long currentNanoTime) {
+                // find amount of time passed since last loop run
                 long elapsedNanoSeconds = currentNanoTime - startNanoTime;
                 startNanoTime = currentNanoTime;
-                // get fraction of second elapsed
-                double timeDelta = elapsedNanoSeconds / 1000000000.0f;
+                double timeDeltaSeconds = elapsedNanoSeconds / 1000000000.0f;
+
 
                 // MOVE all entities, and the camera
                 // apply physics to bodies
                 player.move(inputsPressed);
                 // move the world
-                world.step((float) timeDelta, 6, 2);
+                world.step((float) timeDeltaSeconds, 6, 2);
                 // move the camera according to new positions
-                camera.move(timeDelta);
+                camera.move(timeDeltaSeconds);
 
                 // PAINT all entities in the correct positions
                 // note: scrollX, scrollY are coordinates of top left corner of screen

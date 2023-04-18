@@ -12,11 +12,11 @@ public class Camera implements GameConstants {
         scrollY = playerPos.y + STAGE_HEIGHT / TILE_SIZE / 2;
     }
 
-    public void move(double timeDelta) {
+    public void move(double timeDeltaSeconds) {
         Vec2 playerPos = player.getWorldPosition();
-        // TODO this timeDelta logic will break for >1 second timeDelta's
-        scrollX += ((playerPos.x - STAGE_WIDTH / TILE_SIZE / 2) - scrollX) * timeDelta * 2;
-        scrollY += ((playerPos.y + STAGE_HEIGHT / TILE_SIZE / 2) - scrollY) * timeDelta * 2;
+        // TODO this timeDeltaSeconds logic will break for >1 second timeDeltaSeconds's
+        scrollX += ((playerPos.x - STAGE_WIDTH / TILE_SIZE / 2) - scrollX) * timeDeltaSeconds * 2;
+        scrollY += ((playerPos.y + STAGE_HEIGHT / TILE_SIZE / 2) - scrollY) * timeDeltaSeconds * 2;
     }
 
     public double getScrollX() {
