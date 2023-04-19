@@ -20,7 +20,7 @@ public class GamePage implements GameConstants {
     private World world;
     private Camera camera;
     private TileMap tileMap;
-    FPSCounter fpsCounter;
+    DevHUD fpsCounter;
     public GamePage() throws Exception {
         // set up root node and create scene with it
         Group root = new Group();
@@ -54,7 +54,7 @@ public class GamePage implements GameConstants {
         camera = new Camera(player);
 
         // set up FPS counter
-        fpsCounter = new FPSCounter(pane);
+        fpsCounter = new DevHUD(pane, player);
 
         // set up input keypress listeners
         inputsPressed = new Hashtable<>();
