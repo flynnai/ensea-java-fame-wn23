@@ -193,12 +193,11 @@ public class Player implements GameConstants {
         }
         if (inputsPressed.get(UserInput.LEFT)) {
             if ((double) playerVel.x > -PLAYER_MAX_SPEED && !this.isTouchingLeftWall()) {
-                playerBody.applyForceToCenter(new Vec2(-80, 0));
-
+                playerBody.applyForceToCenter(new Vec2(this.isTouchingGround() ? -PLAYER_GROUND_MOVE_FORCE : -PLAYER_AIR_MOVE_FORCE, 0));
             }
         } else if (inputsPressed.get(UserInput.RIGHT)) {
             if ((double) playerVel.x < PLAYER_MAX_SPEED && !this.isTouchingRightWall()) {
-                playerBody.applyForceToCenter(new Vec2(80, 0));
+                playerBody.applyForceToCenter(new Vec2(this.isTouchingGround() ? PLAYER_GROUND_MOVE_FORCE : PLAYER_AIR_MOVE_FORCE, 0));
             }
         }
 
