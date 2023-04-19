@@ -9,4 +9,6 @@ public interface GameConstants {
     public static final Vec2 PLAYER_START_POSITION = new Vec2(15, 2);
     // the bottom of the map, where the player will fall and die
     public static final int WORLD_BOTTOM = -30;
+    // parallax background speed
+    public static final double BACKGROUND_SPEED = 30;
 }

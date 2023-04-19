@@ -21,6 +21,7 @@ public class GamePage implements GameConstants {
     private Camera camera;
     private TileMap tileMap;
     DevHUD fpsCounter;
+    ParallaxBackground parallaxBackground;
     public GamePage() throws Exception {
         // set up root node and create scene with it
         Group root = new Group();
@@ -55,6 +56,9 @@ public class GamePage implements GameConstants {
 
         // set up FPS counter
         fpsCounter = new DevHUD(pane, player, camera);
+
+        // set up parallax backgrounds
+        parallaxBackground = new ParallaxBackground(pane);
 
         // set up input keypress listeners
         inputsPressed = new Hashtable<>();
@@ -99,6 +103,7 @@ public class GamePage implements GameConstants {
         tileMap.paint(scrollX, scrollY);
         player.paint(scrollX, scrollY);
         fpsCounter.paint();
+        parallaxBackground.paint(scrollX, scrollY);
     }
 
     public Scene getScene() {

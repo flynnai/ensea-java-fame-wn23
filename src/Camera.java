@@ -20,6 +20,7 @@ public class Camera implements GameConstants {
         double targetScrollY = (playerPos.y + STAGE_HEIGHT / TILE_SIZE / 2);
 
         // don't scroll past bottom of stage
+        // TODO this should really be done in all 4 directions, according to the current tilemap width and height
         targetScrollY = Math.max(targetScrollY, WORLD_BOTTOM + STAGE_HEIGHT / TILE_SIZE);
 
         scrollX += (targetScrollX - scrollX) * timeDeltaSeconds * 2;
