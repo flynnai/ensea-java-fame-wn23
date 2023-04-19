@@ -74,9 +74,8 @@ public class Player implements GameConstants {
         playerShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2, new Vec2(0, 0), 0f);
 
         playerBody.setType(BodyType.DYNAMIC);
-        Vec2 playerStart = new Vec2(15, 2);
         float playerAngle = 0f;
-        playerBody.setTransform(playerStart, playerAngle);
+        playerBody.setTransform(PLAYER_START_POSITION, playerAngle);
 
         // ===== COLLISION DETECTORS =====
 
@@ -198,9 +197,17 @@ public class Player implements GameConstants {
 
             }
         } else if (inputsPressed.get(UserInput.RIGHT)) {
-            if ((double) playerVel.x < PLAYER_MAX_SPEED&& !this.isTouchingRightWall()) {
+            if ((double) playerVel.x < PLAYER_MAX_SPEED && !this.isTouchingRightWall()) {
                 playerBody.applyForceToCenter(new Vec2(80, 0));
             }
+        }
+
+        // NOTE: the physics world has NOT updated our position or velocity with the above forces yet,
+        // it will do so in the `world.step()` function. We're 1 frame behind here.
+        Vec2 position = this.getWorldPosition();
+        if (position.y < WORLD_BOTTOM) {
+            playerBody.setTransform(PLAYER_START_POSITION, 0f);
+            playerBody.setLinearVelocity(new Vec2(0, 0));
         }
     }
 
@@ -235,6 +242,7 @@ public class Player implements GameConstants {
     public boolean isTouchingLeftWall() {
         return numTouchingLeftSide > 0;
     }
+
     public boolean isTouchingRightWall() {
         return numTouchingRightSide > 0;
     }

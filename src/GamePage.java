@@ -54,7 +54,7 @@ public class GamePage implements GameConstants {
         camera = new Camera(player);
 
         // set up FPS counter
-        fpsCounter = new DevHUD(pane, player);
+        fpsCounter = new DevHUD(pane, player, camera);
 
         // set up input keypress listeners
         inputsPressed = new Hashtable<>();

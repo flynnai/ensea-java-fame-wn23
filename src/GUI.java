@@ -6,7 +6,7 @@ public class GUI extends Application implements GameConstants {
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("Jaconde Test");
         primaryStage.setResizable(false);
-        
+
         // initiate GamePage instance and show in stage
         GamePage gamePage = new GamePage();
         primaryStage.setScene(gamePage.getScene());
