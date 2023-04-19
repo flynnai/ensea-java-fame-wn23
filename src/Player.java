@@ -177,10 +177,12 @@ public class Player implements GameConstants {
     }
 
     public void move(Dictionary<UserInput, Boolean> inputsPressed) {
+        Vec2 playerVel = playerBody.getLinearVelocity();
+
         if (framesUntilCanJump > 0) {
             framesUntilCanJump--;
         } else if (inputsPressed.get(UserInput.UP)) {
-            if (this.isTouchingGround()) {
+            if (this.isTouchingGround() && playerVel.y < 3f) {
                 playerBody.applyForceToCenter(new Vec2(0, 1500));
                 // we want 1 force applied to jump, only 1 time
                 framesUntilCanJump = 15;
@@ -190,7 +192,6 @@ public class Player implements GameConstants {
         if (inputsPressed.get(UserInput.DOWN)) {
             // for later
         }
-        Vec2 playerVel = playerBody.getLinearVelocity();
         if (inputsPressed.get(UserInput.LEFT)) {
             if ((double) playerVel.x > -PLAYER_MAX_SPEED && !this.isTouchingLeftWall()) {
                 playerBody.applyForceToCenter(new Vec2(-80, 0));
