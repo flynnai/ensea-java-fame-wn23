@@ -39,10 +39,10 @@ public class GamePage implements GameConstants {
 
         // set up tilemap
         tileMap = new TileMap(
-                "./img/sprite_sheets/mario_tileset.png",
+                "./img/sprite_sheets/parisian_tileset_test_1.png",
                 32,
-                1,
-                "./data/tile_maps/mario4_format2.json",
+                0,
+                "./data/tile_maps/map1.json",
                 pane,
                 new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()),
                 world
@@ -103,7 +103,7 @@ public class GamePage implements GameConstants {
         tileMap.paint(scrollX, scrollY);
         player.paint(scrollX, scrollY);
         fpsCounter.paint();
-        parallaxBackground.paint(scrollX, scrollY);
+//        parallaxBackground.paint(scrollX, scrollY);
     }
 
     public Scene getScene() {

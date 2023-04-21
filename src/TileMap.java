@@ -23,20 +23,18 @@ public class TileMap {
         Image spriteSheet = new Image("file:" + spriteSheetPath);
 
         FileReader reader = new FileReader(tileMapPath);
-        JSONObject tilemapJson = new JSONObject(new JSONTokener(reader));
+        JSONObject mapJson = new JSONObject(new JSONTokener(reader));
 
-        String mapName = "Map_1_copy_copy_copy_copy_copy_copy_copy_copy";
-        JSONObject map = tilemapJson.getJSONObject("maps").getJSONObject(mapName);
+        int mapWidth = mapJson.getInt("width");
+        int mapHeight = mapJson.getInt("height");
 
-        int mapWidth = map.getInt("mapWidth");
-        int mapHeight = map.getInt("mapHeight");
+        JSONArray layersJson = mapJson.getJSONArray("layers");
 
-        JSONArray layers = map.getJSONArray("layers");
         this.layers = new ArrayList<TileMapLayer>();
-        for (int layerNum = 0; layerNum < layers.length(); layerNum++) {
-            JSONObject layerJson = layers.getJSONObject(layerNum);
-            JSONObject tilesJson = layerJson.getJSONObject("tiles");
-
+        for (int layerNum = 0; layerNum < layersJson.length(); layerNum++) {
+            JSONObject layerJson = layersJson.getJSONObject(layerNum);
+            JSONArray tilesJson = layerJson.getJSONArray("data");
+            String layerName = layerJson.getString("name");
             TileMapLayer layer = new TileMapLayer(
                     tilesJson,
                     mapWidth,
@@ -46,7 +44,8 @@ public class TileMap {
                     tilePaddingPx,
                     spriteSheet,
                     pane,
-                    layerNum == 1 ? world : null // only have physics for layer 1
+                    // only have physics for layer named "collidable"
+                    layerName.equals("collidable") ? world : null
             );
             this.layers.add(layer);
         }

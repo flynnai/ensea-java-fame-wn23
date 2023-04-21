@@ -4,9 +4,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
 import org.jbox2d.dynamics.World;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -19,7 +19,7 @@ public class TileMapLayer implements GameConstants {
     private int tileSizePx;
     private int tilePaddingPx;
 
-    public TileMapLayer(JSONObject tilesJson, int mapWidth, int mapHeight, Rectangle2D viewport, int tileSizePx, int tilePaddingPx, Image spriteSheet, Pane pane, World world) {
+    public TileMapLayer(JSONArray tilesJson, int mapWidth, int mapHeight, Rectangle2D viewport, int tileSizePx, int tilePaddingPx, Image spriteSheet, Pane pane, World world) {
         List<List<Tile>> tileMatrix = new ArrayList<>();
         // initialize to all `null`'s
         for (int i = 0; i < mapHeight; i++) {
@@ -30,16 +30,16 @@ public class TileMapLayer implements GameConstants {
             tileMatrix.add(matrixRow);
         }
 
-        Iterator<String> tileKeys = tilesJson.keys();
-        while (tileKeys.hasNext()) {
-            String tileKey = tileKeys.next();
-            JSONObject tileJson = tilesJson.getJSONObject(tileKey);
-
-            String[] coords = tileKey.split("-");
-            int mapCol = Integer.parseInt(coords[0]);
-            int mapRow = Integer.parseInt(coords[1]);
-            int tilesetCol = tileJson.getInt("x");
-            int tilesetRow = tileJson.getInt("y");
+        int spriteSheetNumTilesWide = (int) Math.floor((spriteSheet.getWidth() + 1) / (tileSizePx + tilePaddingPx));
+        for (int i = 0; i < mapWidth * mapHeight; i++) {
+            int mapRow = (int) Math.floor(i / mapWidth);
+            int mapCol = i % mapWidth;
+            int rawTileNumber = tilesJson.getInt(i) - 1;
+            if (rawTileNumber == -1) {
+                continue;
+            }
+            int tilesetRow = (int) Math.floor(rawTileNumber / spriteSheetNumTilesWide);
+            int tilesetCol = rawTileNumber % spriteSheetNumTilesWide;
 
             tileMatrix.get(mapRow).set(mapCol, new Tile(tilesetRow, tilesetCol, mapCol + 0.5, -mapRow - 0.5, world));
         }

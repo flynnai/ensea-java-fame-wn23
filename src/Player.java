@@ -14,8 +14,8 @@ import org.jbox2d.dynamics.contacts.Contact;
 import java.util.Dictionary;
 
 public class Player implements GameConstants {
-    private final float PLAYER_WIDTH = 1f;
-    private final float PLAYER_HEIGHT = 2f;
+    private final float PLAYER_WIDTH = 0.5f;
+    private final float PLAYER_HEIGHT = 1f;
     private Body playerBody;
     private int numTouchingGround = 0;
     private int numTouchingLeftSide = 0;
@@ -53,7 +53,7 @@ public class Player implements GameConstants {
         rectShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT * 3 / 4 / 2, new Vec2(0, PLAYER_HEIGHT / 8), 0f);
         FixtureDef playerFixture = new FixtureDef();
         playerFixture.shape = rectShape;
-        playerFixture.density = 1f;
+        playerFixture.density = 4f;
         playerFixture.friction = 1f;
 
         // circular bottom to allow smooth movement
@@ -63,7 +63,7 @@ public class Player implements GameConstants {
 
         FixtureDef circleFixture = new FixtureDef();
         circleFixture.shape = circleShape;
-        circleFixture.density = 1f;
+        circleFixture.density = 4f;
         circleFixture.friction = 1f;
 
         playerBody.createFixture(playerFixture);
@@ -168,7 +168,7 @@ public class Player implements GameConstants {
 
 
         // set up player JavaFX element
-        playerDisplayRect = new Rectangle(1 * TILE_SIZE, 2 * TILE_SIZE);
+        playerDisplayRect = new Rectangle(PLAYER_WIDTH * TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE);
         pane.getChildren().add(playerDisplayRect);
 
 
