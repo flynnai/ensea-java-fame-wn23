@@ -15,12 +15,21 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class TileMap {
+public class TileMap implements GameConstants {
     private List<TileMapLayer> layers;
 
     public TileMap(String spriteSheetPath, int tileSizePx, int tilePaddingPx, String tileMapPath, Pane pane, Rectangle2D gameViewport, World world) throws FileNotFoundException {
         // TODO we can use embedded JSON base64 spritesheet instead
-        Image spriteSheet = new Image("file:" + spriteSheetPath);
+        // get a demo version of the file to see its dimensions, then scale
+        Image demoImage = new Image("file:" + spriteSheetPath);
+        float scaleFactor = (float) TILE_SIZE / (tileSizePx + tilePaddingPx);
+        Image spriteSheet = new Image(
+                "file:" + spriteSheetPath,
+                demoImage.getWidth() * scaleFactor,
+                demoImage.getHeight() * scaleFactor,
+                true,
+                false
+        );
 
         FileReader reader = new FileReader(tileMapPath);
         JSONObject mapJson = new JSONObject(new JSONTokener(reader));
@@ -40,7 +49,6 @@ public class TileMap {
                     mapWidth,
                     mapHeight,
                     gameViewport,
-                    tileSizePx,
                     tilePaddingPx,
                     spriteSheet,
                     pane,

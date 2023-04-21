@@ -16,10 +16,9 @@ public class TileMapLayer implements GameConstants {
     public List<List<ImageView>> tileViews;
     public Rectangle2D viewport;
     private Image spriteSheet;
-    private int tileSizePx;
     private int tilePaddingPx;
 
-    public TileMapLayer(JSONArray tilesJson, int mapWidth, int mapHeight, Rectangle2D viewport, int tileSizePx, int tilePaddingPx, Image spriteSheet, Pane pane, World world) {
+    public TileMapLayer(JSONArray tilesJson, int mapWidth, int mapHeight, Rectangle2D viewport, int tilePaddingPx, Image spriteSheet, Pane pane, World world) {
         List<List<Tile>> tileMatrix = new ArrayList<>();
         // initialize to all `null`'s
         for (int i = 0; i < mapHeight; i++) {
@@ -30,7 +29,7 @@ public class TileMapLayer implements GameConstants {
             tileMatrix.add(matrixRow);
         }
 
-        int spriteSheetNumTilesWide = (int) Math.floor((spriteSheet.getWidth() + 1) / (tileSizePx + tilePaddingPx));
+        int spriteSheetNumTilesWide = (int) Math.floor((spriteSheet.getWidth() + 1) / (TILE_SIZE + tilePaddingPx));
         for (int i = 0; i < mapWidth * mapHeight; i++) {
             int mapRow = (int) Math.floor(i / mapWidth);
             int mapCol = i % mapWidth;
@@ -47,7 +46,6 @@ public class TileMapLayer implements GameConstants {
         this.tileMatrix = tileMatrix;
         int viewportColCount = (int) Math.ceil(viewport.getWidth() / TILE_SIZE) + 1;
         int viewportRowCount = (int) Math.ceil(viewport.getHeight() / TILE_SIZE) + 1;
-        this.tileSizePx = tileSizePx;
         this.tilePaddingPx = tilePaddingPx;
         tileViews = new ArrayList<>();
         for (int i = 0; i < viewportRowCount; i++) {
@@ -88,10 +86,10 @@ public class TileMapLayer implements GameConstants {
                 }
                 tileView.setVisible(true);
                 tileView.setViewport(new Rectangle2D(
-                        tile.tilesetCol * (this.tileSizePx + this.tilePaddingPx),
-                        tile.tilesetRow * (this.tileSizePx + this.tilePaddingPx),
-                        this.tileSizePx,
-                        this.tileSizePx
+                        tile.tilesetCol * (TILE_SIZE + this.tilePaddingPx),
+                        tile.tilesetRow * (TILE_SIZE + this.tilePaddingPx),
+                        TILE_SIZE,
+                        TILE_SIZE
                 ));
                 tileView.relocate(
                         TILE_SIZE * (viewportColNum + interTileOffsetX),
