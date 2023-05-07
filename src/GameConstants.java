@@ -13,4 +13,5 @@ public interface GameConstants {
     public static final int WORLD_BOTTOM = -30;
     // parallax background speed
     public static final double BACKGROUND_SPEED = 30;
+    public static final int COLLIDABLE_LAYER_NUMBER = 1;
 }

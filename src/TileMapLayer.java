@@ -3,6 +3,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
+import org.jbox2d.collision.shapes.Shape;
+import org.jbox2d.common.Transform;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
 import org.json.JSONArray;
 import org.json.JSONObject;

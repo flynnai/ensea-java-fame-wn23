@@ -36,10 +36,11 @@ public class GamePage implements GameConstants {
 
         // set up physics world
         world = new World(new Vec2(0, -9.81f));
+        world.setGravity(new Vec2(0, 0));
 
         // set up tilemap
         tileMap = new TileMap(
-                "./img/sprite_sheets/parisian_tileset_test_1.png",
+                "./img/sprite_sheets/parisian_tileset_test_2.png",
                 32,
                 0,
                 "./data/tile_maps/map1.json",
@@ -84,7 +85,7 @@ public class GamePage implements GameConstants {
     private void move(double currentSecondsTime, double timeDeltaSeconds) {
         // MOVE all entities, and the camera
         // apply physics to bodies
-        player.move(inputsPressed);
+        player.move(inputsPressed, timeDeltaSeconds);
         // move the world
         world.step((float) timeDeltaSeconds, 6, 2);
         // move the camera according to new positions

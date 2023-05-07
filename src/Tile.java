@@ -27,6 +27,7 @@ public class Tile {
             squareFixture.density = 0f; // infinite mass (static object)
             squareFixture.friction = 1f;
             squareFixture.userData = "ground";
+            squareFixture.filter.groupIndex = 0;
 
             BodyDef squareBodyDef = new BodyDef();
             squareBodyDef.type = BodyType.STATIC;

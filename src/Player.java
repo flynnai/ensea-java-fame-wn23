@@ -20,6 +20,7 @@ public class Player implements GameConstants {
     private int numTouchingGround = 0;
     private int numTouchingLeftSide = 0;
     private int numTouchingRightSide = 0;
+    private int bodyNumTouchingGround = 0;
     PolygonShape playerShape;
     Rectangle playerDisplayRect;
     PolygonShape groundDetectorShape;
@@ -40,42 +41,46 @@ public class Player implements GameConstants {
         playerBody = world.createBody(playerBodyDef);
 
         // rectangular player shape
-        //        playerShape = new PolygonShape();
-        //        playerShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2, new Vec2(0, 0), 0f);
-        //        FixtureDef playerFixture = new FixtureDef();
-        //        playerFixture.shape = playerShape;
-        //        playerFixture.density = 1f;
-        //        playerFixture.friction = 1f;
-        //        playerBody.createFixture(playerFixture);
+        playerShape = new PolygonShape();
+        playerShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2, new Vec2(0, 0), 0f);
+        FixtureDef playerFixtureDef = new FixtureDef();
+        playerFixtureDef.shape = playerShape;
+        playerFixtureDef.density = 1f;
+        playerFixtureDef.friction = 1f;
+        playerFixtureDef.isSensor = true;
+        playerFixtureDef.filter.groupIndex = 1;
+        Fixture playerFixture = playerBody.createFixture(playerFixtureDef);
 
         // rectangle with rounded bottom player shape
-        PolygonShape rectShape = new PolygonShape();
-        rectShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT * 3 / 4 / 2, new Vec2(0, PLAYER_HEIGHT / 8), 0f);
-        FixtureDef playerFixture = new FixtureDef();
-        playerFixture.shape = rectShape;
-        playerFixture.density = 4f;
-        playerFixture.friction = 1f;
+//        PolygonShape rectShape = new PolygonShape();
+//        rectShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT * 3 / 4 / 2, new Vec2(0, PLAYER_HEIGHT / 8), 0f);
+//        FixtureDef playerFixture = new FixtureDef();
+//        playerFixture.shape = rectShape;
+//        playerFixture.density = 4f;
+//        playerFixture.friction = 1f;
+//
+//        // circular bottom to allow smooth movement
+//        CircleShape circleShape = new CircleShape();
+//        circleShape.setRadius(PLAYER_WIDTH / 2);
+//        circleShape.m_p.set(0, -PLAYER_HEIGHT * 1 / 4);
 
-        // circular bottom to allow smooth movement
-        CircleShape circleShape = new CircleShape();
-        circleShape.setRadius(PLAYER_WIDTH / 2);
-        circleShape.m_p.set(0, -PLAYER_HEIGHT * 1 / 4);
+//        FixtureDef circleFixture = new FixtureDef();
+//        circleFixture.shape = circleShape;
+//        circleFixture.density = 4f;
+//        circleFixture.friction = 1f;
 
-        FixtureDef circleFixture = new FixtureDef();
-        circleFixture.shape = circleShape;
-        circleFixture.density = 4f;
-        circleFixture.friction = 1f;
-
-        playerBody.createFixture(playerFixture);
-        playerBody.createFixture(circleFixture);
+//        playerBody.createFixture(playerFixture);
+//        playerBody.createFixture(circleFixture);
 
         // rectangular player "display area" shape, no physics, for mapping the sprite to
         playerShape = new PolygonShape();
         playerShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2, new Vec2(0, 0), 0f);
 
         playerBody.setType(BodyType.DYNAMIC);
+        System.out.println("Player body type is " + playerBodyDef.type);
         float playerAngle = 0f;
         playerBody.setTransform(PLAYER_START_POSITION, playerAngle);
+
 
         // ===== COLLISION DETECTORS =====
 
@@ -124,6 +129,8 @@ public class Player implements GameConstants {
                 if ((fixtureA == groundDetectorFixture && fixtureB.getUserData() == "ground") ||
                         (fixtureB == groundDetectorFixture && fixtureA.getUserData() == "ground")) {
                     // increment the number of 'ground' objects we're touching by 1
+                    System.out.println("Well, we're calling this");
+
                     numTouchingGround++;
                 } else if ((fixtureA == leftSideDetectorFixture && fixtureB.getUserData() == "ground") ||
                         (fixtureB == leftSideDetectorFixture && fixtureA.getUserData() == "ground")) {
@@ -160,9 +167,46 @@ public class Player implements GameConstants {
             }
         }
 
+
+        class PlayerContactListener implements ContactListener {
+            public void beginContact(Contact contact) {
+                // check if the collision is between the detector fixture and a ground tile
+                Fixture fixtureA = contact.getFixtureA();
+                Fixture fixtureB = contact.getFixtureB();
+                if ((fixtureA == playerFixture && fixtureB.getUserData() == "ground") ||
+                        (fixtureB == playerFixture && fixtureA.getUserData() == "ground")) {
+                    // increment the number of 'ground' objects we're touching by 1
+                    bodyNumTouchingGround++;
+                }
+            }
+
+            public void endContact(Contact contact) {
+                // Check if the collision is between the detector fixture and a ground tile
+                Fixture fixtureA = contact.getFixtureA();
+                Fixture fixtureB = contact.getFixtureB();
+                if ((fixtureA == playerFixture && fixtureB.getUserData() == "ground") ||
+                        (fixtureB == playerFixture && fixtureA.getUserData() == "ground")) {
+                    // increment the number of 'ground' objects we're touching by 1
+                    bodyNumTouchingGround--;
+                }
+            }
+
+            public void preSolve(Contact contact, Manifold oldManifold) {
+                // empty implementation here
+            }
+
+            public void postSolve(Contact contact, ContactImpulse impulse) {
+                // empty implementation here
+            }
+        }
+
         // create a new instance of the contact listener and register it with the world
-        SideContactListener contactListener = new SideContactListener();
-        world.setContactListener(contactListener);
+//        SideContactListener contactListener = new SideContactListener();
+//        world.setContactListener(contactListener);
+
+        // create a new instance of the player contact listener and register it with the world
+        PlayerContactListener playerContactListener = new PlayerContactListener();
+        world.setContactListener(playerContactListener);
 
         // ===== END COLLISION DETECTORS =====
 
@@ -175,33 +219,50 @@ public class Player implements GameConstants {
         groundDetectorDisplayRect.toFront();
     }
 
-    public void move(Dictionary<UserInput, Boolean> inputsPressed) {
+    public void move(Dictionary<UserInput, Boolean> inputsPressed, double timeDeltaSeconds) {
         Vec2 playerVel = playerBody.getLinearVelocity();
+        Vec2 newPlayerVel = new Vec2(playerVel);
 
-        if (framesUntilCanJump > 0) {
-            framesUntilCanJump--;
-        } else if (inputsPressed.get(UserInput.UP)) {
-            if (this.isTouchingGround() && playerVel.y < 3f) {
-                playerBody.applyForceToCenter(new Vec2(0, 1500));
-                // we want 1 force applied to jump, only 1 time
-                framesUntilCanJump = 15;
-            }
+//        if (framesUntilCanJump > 0) {
+//            framesUntilCanJump--;
+//        } else if (inputsPressed.get(UserInput.UP)) {
+//            if (this.isTouchingGround() && playerVel.y < 3f) {
+////                playerBody.setLinearVelocity(new Vec2(playerVel.x, playerVel.y + 10));
+//                // we want 1 force applied to jump, only 1 time
+//                framesUntilCanJump = 15;
+//            }
+//        }
+//
+//        if (inputsPressed.get(UserInput.DOWN)) {
+//            // for later
+//        }
+//        if (inputsPressed.get(UserInput.LEFT)) {
+//            if ((double) playerVel.x > -PLAYER_MAX_SPEED && !this.isTouchingLeftWall()) {
+//                playerBody.applyForceToCenter(new Vec2(this.isTouchingGround() ? -PLAYER_GROUND_MOVE_FORCE : -PLAYER_AIR_MOVE_FORCE, 0));
+//            }
+//        } else if (inputsPressed.get(UserInput.RIGHT)) {
+//            if ((double) playerVel.x < PLAYER_MAX_SPEED && !this.isTouchingRightWall()) {
+//                playerBody.applyForceToCenter(new Vec2(this.isTouchingGround() ? PLAYER_GROUND_MOVE_FORCE : PLAYER_AIR_MOVE_FORCE, 0));
+//            }
+//        }
+
+        newPlayerVel.y -= 9.81f * (float) timeDeltaSeconds;
+        newPlayerVel.y *= 0.99;
+//        playerBody.getWorld().getContactManager().findNewContacts();
+//        System.out.println("We're touching ground: " + this.isBodyTouchingGround());
+        playerBody.setLinearVelocity(newPlayerVel);
+
+        if (this.isBodyTouchingGround()) {
+            Vec2 oppositeDirStep = playerBody.getLinearVelocity();
+            // normalize and reverse
+            double magnitude = Math.hypot(oppositeDirStep.x, oppositeDirStep.y);
+            oppositeDirStep.x /= -magnitude;
+            oppositeDirStep.y /= -magnitude;
+            playerBody.setTransform(playerBody.getPosition().add(playerBody.getLinearVelocity()), 0);
+            System.out.println("We're touching groun now:" + this.isBodyTouchingGround());
         }
 
-        if (inputsPressed.get(UserInput.DOWN)) {
-            // for later
-        }
-        if (inputsPressed.get(UserInput.LEFT)) {
-            if ((double) playerVel.x > -PLAYER_MAX_SPEED && !this.isTouchingLeftWall()) {
-                playerBody.applyForceToCenter(new Vec2(this.isTouchingGround() ? -PLAYER_GROUND_MOVE_FORCE : -PLAYER_AIR_MOVE_FORCE, 0));
-            }
-        } else if (inputsPressed.get(UserInput.RIGHT)) {
-            if ((double) playerVel.x < PLAYER_MAX_SPEED && !this.isTouchingRightWall()) {
-                playerBody.applyForceToCenter(new Vec2(this.isTouchingGround() ? PLAYER_GROUND_MOVE_FORCE : PLAYER_AIR_MOVE_FORCE, 0));
-            }
-        }
-
-        // NOTE: the physics world has NOT updated our position or velocity with the above forces yet,
+        // NOTE: the physics world has NOT updated our position with the above velocity yet,
         // it will do so in the `world.step()` function. We're 1 frame behind here.
         Vec2 position = this.getWorldPosition();
         if (position.y < WORLD_BOTTOM) {
@@ -249,4 +310,5 @@ public class Player implements GameConstants {
     public Vec2 getWorldPosition() {
         return this.playerBody.getPosition();
     }
+    public boolean isBodyTouchingGround() { return bodyNumTouchingGround > 0; }
 }

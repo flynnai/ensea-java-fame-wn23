@@ -3,6 +3,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
+import org.jbox2d.collision.shapes.Shape;
+import org.jbox2d.common.Transform;
 import org.jbox2d.dynamics.World;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -52,8 +54,8 @@ public class TileMap implements GameConstants {
                     tilePaddingPx,
                     spriteSheet,
                     pane,
-                    // only have physics for layer named "collidable"
-                    layerName.equals("collidable") ? world : null
+                    // only have physics for layer number 1
+                    layerNum == COLLIDABLE_LAYER_NUMBER ? world : null
             );
             this.layers.add(layer);
         }
@@ -65,5 +67,6 @@ public class TileMap implements GameConstants {
             layer.paint(scrollX, scrollY);
         }
     }
+
 
 }
