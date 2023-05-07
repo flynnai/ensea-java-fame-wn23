@@ -36,28 +36,30 @@ public class Player extends PhysicsEntity implements GameConstants {
     public void move(Dictionary<UserInput, Boolean> inputsPressed, double timeDeltaSeconds) {
         Vector2 newVelocity = new Vector2(this.getVelocity());
 
-//        if (framesUntilCanJump > 0) {
-//            framesUntilCanJump--;
-//        } else if (inputsPressed.get(UserInput.UP)) {
-//            if (this.isTouchingGround() && playerVel.y < 3f) {
-////                playerBody.setLinearVelocity(new Vec2(playerVel.x, playerVel.y + 10));
-//                // we want 1 force applied to jump, only 1 time
-//                framesUntilCanJump = 15;
-//            }
-//        }
-//
-//        if (inputsPressed.get(UserInput.DOWN)) {
-//            // for later
-//        }
-//        if (inputsPressed.get(UserInput.LEFT)) {
-//            if ((double) playerVel.x > -PLAYER_MAX_SPEED && !this.isTouchingLeftWall()) {
-//                playerBody.applyForceToCenter(new Vec2(this.isTouchingGround() ? -PLAYER_GROUND_MOVE_FORCE : -PLAYER_AIR_MOVE_FORCE, 0));
-//            }
-//        } else if (inputsPressed.get(UserInput.RIGHT)) {
-//            if ((double) playerVel.x < PLAYER_MAX_SPEED && !this.isTouchingRightWall()) {
-//                playerBody.applyForceToCenter(new Vec2(this.isTouchingGround() ? PLAYER_GROUND_MOVE_FORCE : PLAYER_AIR_MOVE_FORCE, 0));
-//            }
-//        }
+        if (framesUntilCanJump > 0) {
+            framesUntilCanJump--;
+        } else if (inputsPressed.get(UserInput.UP)) {
+            if (this.isTouchingGround() && this.getVelocity().y < 3) {
+                newVelocity.y = 10;
+                // we want velocity set for jump only 1 time
+                framesUntilCanJump = 15;
+            }
+        }
+
+        if (inputsPressed.get(UserInput.DOWN)) {
+            // for later
+        }
+        if (inputsPressed.get(UserInput.LEFT)) {
+            if (this.getVelocity().x > -PLAYER_MAX_SPEED) {
+                newVelocity.x += (this.isTouchingGround() ? -PLAYER_GROUND_MOVE_FORCE : -PLAYER_AIR_MOVE_FORCE) * timeDeltaSeconds;
+            }
+        } else if (inputsPressed.get(UserInput.RIGHT)) {
+            if (this.getVelocity().x < PLAYER_MAX_SPEED) {
+                newVelocity.x += (this.isTouchingGround() ? PLAYER_GROUND_MOVE_FORCE : PLAYER_AIR_MOVE_FORCE) * timeDeltaSeconds;
+            }
+        }
+
+        newVelocity.x *= 0.99;
 
         newVelocity.y -= 9.81 * timeDeltaSeconds;
         newVelocity.y *= 0.99;
@@ -83,14 +85,4 @@ public class Player extends PhysicsEntity implements GameConstants {
     public boolean isTouchingGround() {
         return numTouchingGround > 0;
     }
-
-    public boolean isTouchingLeftWall() {
-        return numTouchingLeftSide > 0;
-    }
-
-    public boolean isTouchingRightWall() {
-        return numTouchingRightSide > 0;
-    }
-
-    public boolean isBodyTouchingGround() { return bodyNumTouchingGround > 0; }
 }

@@ -2,7 +2,7 @@ import javafx.scene.shape.Shape;
 
 import java.util.List;
 
-public class PhysicsEntity {
+public class PhysicsEntity implements GameConstants {
     private Vector2 position;
     private Vector2 velocity;
     public List<Shape> fixtureShapes;
@@ -44,13 +44,25 @@ public class PhysicsEntity {
     }
 
     void move(double timeDeltaSeconds) {
-        this.position.x += this.velocity.x * timeDeltaSeconds;
-        this.position.y += this.velocity.y * timeDeltaSeconds;
+        position.x += velocity.x * timeDeltaSeconds;
+        position.y += velocity.y * timeDeltaSeconds;
         // TODO collisions
         if (isTouchingTerrain()) {
-            this.velocity.y = -this.velocity.y;
-        } else {
-            System.out.println("Hmm.");
+            // move in opposite direction till not touching
+            int maxTries = 100;
+            Vector2 opposite = new Vector2(velocity.x / -velocity.getMagnitude() / maxTries, velocity.y / -velocity.getMagnitude() / maxTries);
+            System.out.println("Opposite is " + opposite);
+            while(isTouchingTerrain()) {
+                position.x += opposite.x;
+                position.y += opposite.y;
+                if (--maxTries < 0) {
+                    break;
+                }
+            }
+
+            double damping =0;// 0.3;
+            velocity.x *= -damping;
+            velocity.y *= -damping;
         }
     }
 

@@ -15,4 +15,8 @@ public class Vector2 {
     public String toString() {
         return "Vector2(" + this.x + ", " + this.y + ")";
     }
+
+    public double getMagnitude() {
+        return Math.hypot(x, y);
+    }
 }
