@@ -2,7 +2,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import org.jbox2d.common.Vec2;
 
 public class DevHUD {
     private int accumulatedFrames = 0;
@@ -46,7 +45,7 @@ public class DevHUD {
 
     public void paint() {
         fpsText.setText("FPS: " + FPS);
-        Vec2 playerCoords = player.getWorldPosition();
+        Vector2 playerCoords = player.getPosition();
         playerCoordsText.setText("Player x, y: "
                 + (Math.round(playerCoords.x * 100) / 100f) + ", "
                 + (Math.round(playerCoords.y * 100) / 100f)

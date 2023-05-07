@@ -3,8 +3,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.World;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -17,7 +15,6 @@ public class GamePage implements GameConstants {
     private AnimationTimer gameLoop;
 
     private Player player;
-    private World world;
     private Camera camera;
     private TileMap tileMap;
     DevHUD fpsCounter;
@@ -33,11 +30,6 @@ public class GamePage implements GameConstants {
         pane.setTranslateY(0);
         root.getChildren().add(pane);
 
-
-        // set up physics world
-        world = new World(new Vec2(0, -9.81f));
-        world.setGravity(new Vec2(0, 0));
-
         // set up tilemap
         tileMap = new TileMap(
                 "./img/sprite_sheets/parisian_tileset_test_2.png",
@@ -45,12 +37,11 @@ public class GamePage implements GameConstants {
                 0,
                 "./data/tile_maps/map1.json",
                 pane,
-                new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()),
-                world
+                new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight())
         );
 
         // set up player in world
-        player = new Player(world, pane);
+        player = new Player(pane, tileMap.getCollidableLayerMatrix());
 
         // set up camera to follow player
         camera = new Camera(player);
@@ -86,8 +77,6 @@ public class GamePage implements GameConstants {
         // MOVE all entities, and the camera
         // apply physics to bodies
         player.move(inputsPressed, timeDeltaSeconds);
-        // move the world
-        world.step((float) timeDeltaSeconds, 6, 2);
         // move the camera according to new positions
         camera.move(timeDeltaSeconds);
         // update the FPS counter's frame count

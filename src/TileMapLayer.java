@@ -3,10 +3,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
-import org.jbox2d.collision.shapes.Shape;
-import org.jbox2d.common.Transform;
-import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.World;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -21,7 +17,7 @@ public class TileMapLayer implements GameConstants {
     private Image spriteSheet;
     private int tilePaddingPx;
 
-    public TileMapLayer(JSONArray tilesJson, int mapWidth, int mapHeight, Rectangle2D viewport, int tilePaddingPx, Image spriteSheet, Pane pane, World world) {
+    public TileMapLayer(JSONArray tilesJson, int mapWidth, int mapHeight, Rectangle2D viewport, int tilePaddingPx, Image spriteSheet, Pane pane, boolean isCollidable) {
         List<List<Tile>> tileMatrix = new ArrayList<>();
         // initialize to all `null`'s
         for (int i = 0; i < mapHeight; i++) {
@@ -43,7 +39,7 @@ public class TileMapLayer implements GameConstants {
             int tilesetRow = (int) Math.floor(rawTileNumber / spriteSheetNumTilesWide);
             int tilesetCol = rawTileNumber % spriteSheetNumTilesWide;
 
-            tileMatrix.get(mapRow).set(mapCol, new Tile(tilesetRow, tilesetCol, mapCol + 0.5, -mapRow - 0.5, world));
+            tileMatrix.get(mapRow).set(mapCol, new Tile(tilesetRow, tilesetCol, mapCol + 0.5, -mapRow - 0.5, isCollidable));
         }
 
         this.tileMatrix = tileMatrix;

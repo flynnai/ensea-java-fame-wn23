@@ -1,40 +1,22 @@
-import javafx.scene.image.ImageView;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 
-import org.jbox2d.collision.shapes.PolygonShape;
-import org.jbox2d.common.Transform;
-import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.*;
-import org.jbox2d.dynamics.World;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Tile {
     public int tilesetRow;
     public int tilesetCol;
-    public Body body;
+    public final List<Shape> fixtureShapes;
 
-    public Tile(int tilesetRow, int tilesetCol, double x, double y, World world) {
+    public Tile(int tilesetRow, int tilesetCol, double x, double y, boolean isCollidable) {
         this.tilesetRow = tilesetRow;
         this.tilesetCol = tilesetCol;
 
-        if (world == null) {
-            // no physics
-            body = null;
-        } else {
-            PolygonShape squareShape = new PolygonShape();
-            squareShape.setAsBox(0.5f, 0.5f); // half-width and half-height of the rectangle
-            FixtureDef squareFixture = new FixtureDef();
-            squareFixture.shape = squareShape;
-            squareFixture.density = 0f; // infinite mass (static object)
-            squareFixture.friction = 1f;
-            squareFixture.userData = "ground";
-            squareFixture.filter.groupIndex = 0;
-
-            BodyDef squareBodyDef = new BodyDef();
-            squareBodyDef.type = BodyType.STATIC;
-            squareBodyDef.position.set((float)x, (float)y);
-
-            body = world.createBody(squareBodyDef);
-            body.createFixture(squareFixture);
+        this.fixtureShapes = new ArrayList<>();
+        if (isCollidable) {
+            this.fixtureShapes.add(new Rectangle(x, y, 1, 1));
         }
     }
 }

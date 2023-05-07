@@ -3,9 +3,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
-import org.jbox2d.collision.shapes.Shape;
-import org.jbox2d.common.Transform;
-import org.jbox2d.dynamics.World;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -20,7 +17,7 @@ import java.util.List;
 public class TileMap implements GameConstants {
     private List<TileMapLayer> layers;
 
-    public TileMap(String spriteSheetPath, int tileSizePx, int tilePaddingPx, String tileMapPath, Pane pane, Rectangle2D gameViewport, World world) throws FileNotFoundException {
+    public TileMap(String spriteSheetPath, int tileSizePx, int tilePaddingPx, String tileMapPath, Pane pane, Rectangle2D gameViewport) throws FileNotFoundException {
         // TODO we can use embedded JSON base64 spritesheet instead
         // get a demo version of the file to see its dimensions, then scale
         Image demoImage = new Image("file:" + spriteSheetPath);
@@ -55,7 +52,7 @@ public class TileMap implements GameConstants {
                     spriteSheet,
                     pane,
                     // only have physics for layer number 1
-                    layerNum == COLLIDABLE_LAYER_NUMBER ? world : null
+                    layerNum == COLLIDABLE_LAYER_NUMBER
             );
             this.layers.add(layer);
         }
@@ -69,4 +66,7 @@ public class TileMap implements GameConstants {
     }
 
 
+    public List<List<Tile>> getCollidableLayerMatrix() {
+        return this.layers.get(COLLIDABLE_LAYER_NUMBER).tileMatrix;
+    }
 }

@@ -1,227 +1,40 @@
-import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import org.jbox2d.callbacks.ContactImpulse;
-import org.jbox2d.callbacks.ContactListener;
-import org.jbox2d.collision.Manifold;
-import org.jbox2d.collision.shapes.CircleShape;
-import org.jbox2d.collision.shapes.PolygonShape;
-import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.*;
-import org.jbox2d.dynamics.contacts.Contact;
+import javafx.scene.transform.Translate;
 
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.List;
 
-public class Player implements GameConstants {
+public class Player extends PhysicsEntity implements GameConstants {
     private final float PLAYER_WIDTH = 0.5f;
     private final float PLAYER_HEIGHT = 1f;
-    private Body playerBody;
     private int numTouchingGround = 0;
     private int numTouchingLeftSide = 0;
     private int numTouchingRightSide = 0;
     private int bodyNumTouchingGround = 0;
-    PolygonShape playerShape;
     Rectangle playerDisplayRect;
-    PolygonShape groundDetectorShape;
     Rectangle groundDetectorDisplayRect;
 
-    PolygonShape leftSideDetectorShape;
     Rectangle leftSideDetectorDisplayRect;
-    PolygonShape rightSideDetectorShape;
     Rectangle rightSideDetectorDisplayRect;
-
-
     int framesUntilCanJump = 0;
 
 
-    public Player(World world, Pane pane) {
-        BodyDef playerBodyDef = new BodyDef();
-        playerBodyDef.fixedRotation = true;
-        playerBody = world.createBody(playerBodyDef);
+    public Player(Pane pane, List<List<Tile>> tileMatrix) {
+        super(PLAYER_START_POSITION, new Vector2(0, 0), new ArrayList<>(), tileMatrix);
 
-        // rectangular player shape
-        playerShape = new PolygonShape();
-        playerShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2, new Vec2(0, 0), 0f);
-        FixtureDef playerFixtureDef = new FixtureDef();
-        playerFixtureDef.shape = playerShape;
-        playerFixtureDef.density = 1f;
-        playerFixtureDef.friction = 1f;
-        playerFixtureDef.isSensor = true;
-        playerFixtureDef.filter.groupIndex = 1;
-        Fixture playerFixture = playerBody.createFixture(playerFixtureDef);
-
-        // rectangle with rounded bottom player shape
-//        PolygonShape rectShape = new PolygonShape();
-//        rectShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT * 3 / 4 / 2, new Vec2(0, PLAYER_HEIGHT / 8), 0f);
-//        FixtureDef playerFixture = new FixtureDef();
-//        playerFixture.shape = rectShape;
-//        playerFixture.density = 4f;
-//        playerFixture.friction = 1f;
-//
-//        // circular bottom to allow smooth movement
-//        CircleShape circleShape = new CircleShape();
-//        circleShape.setRadius(PLAYER_WIDTH / 2);
-//        circleShape.m_p.set(0, -PLAYER_HEIGHT * 1 / 4);
-
-//        FixtureDef circleFixture = new FixtureDef();
-//        circleFixture.shape = circleShape;
-//        circleFixture.density = 4f;
-//        circleFixture.friction = 1f;
-
-//        playerBody.createFixture(playerFixture);
-//        playerBody.createFixture(circleFixture);
-
-        // rectangular player "display area" shape, no physics, for mapping the sprite to
-        playerShape = new PolygonShape();
-        playerShape.setAsBox(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2, new Vec2(0, 0), 0f);
-
-        playerBody.setType(BodyType.DYNAMIC);
-        System.out.println("Player body type is " + playerBodyDef.type);
-        float playerAngle = 0f;
-        playerBody.setTransform(PLAYER_START_POSITION, playerAngle);
-
-
-        // ===== COLLISION DETECTORS =====
-
-        // define a small rectangle for the ground collision detector
-        groundDetectorShape = new PolygonShape();
-        final float DETECTOR_THICKNESS = PLAYER_HEIGHT * 0.1f;
-        groundDetectorShape.setAsBox(PLAYER_WIDTH / 2, DETECTOR_THICKNESS / 2, new Vec2(0, -PLAYER_HEIGHT / 2), 0f);
-        groundDetectorDisplayRect = new Rectangle(PLAYER_WIDTH * TILE_SIZE, DETECTOR_THICKNESS * TILE_SIZE);
-        pane.getChildren().add(groundDetectorDisplayRect);
-
-        FixtureDef groundDetectorFixtureDef = new FixtureDef();
-        groundDetectorFixtureDef.shape = groundDetectorShape;
-        groundDetectorFixtureDef.isSensor = true; // prevent physics interactions with other objects
-        Fixture groundDetectorFixture = playerBody.createFixture(groundDetectorFixtureDef);
-
-        // define a small rectangle for the left-side collision detector
-        leftSideDetectorShape = new PolygonShape();
-        Vec2 leftDims = new Vec2(DETECTOR_THICKNESS / 2 * 4, PLAYER_HEIGHT * 3 / 4);
-        leftSideDetectorShape.setAsBox(leftDims.x / 2, leftDims.y / 2, new Vec2(-PLAYER_WIDTH / 2, PLAYER_HEIGHT / 8), 0f);
-        leftSideDetectorDisplayRect = new Rectangle(leftDims.x * TILE_SIZE, leftDims.y * TILE_SIZE);
-        pane.getChildren().add(leftSideDetectorDisplayRect);
-
-        FixtureDef leftSideDetectorFixtureDef = new FixtureDef();
-        leftSideDetectorFixtureDef.shape = leftSideDetectorShape;
-        leftSideDetectorFixtureDef.isSensor = true;
-        Fixture leftSideDetectorFixture = playerBody.createFixture(leftSideDetectorFixtureDef);
-
-        // define a small rectangle for the right-side collision detector
-        rightSideDetectorShape = new PolygonShape();
-        Vec2 rightDims = new Vec2(DETECTOR_THICKNESS / 2 * 4, PLAYER_HEIGHT * 3 / 4);
-        rightSideDetectorShape.setAsBox(rightDims.x / 2, rightDims.y / 2, new Vec2(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 8), 0f);
-        rightSideDetectorDisplayRect = new Rectangle(rightDims.x * TILE_SIZE, rightDims.y * TILE_SIZE);
-        pane.getChildren().add(rightSideDetectorDisplayRect);
-
-        FixtureDef rightSideDetectorFixtureDef = new FixtureDef();
-        rightSideDetectorFixtureDef.shape = rightSideDetectorShape;
-        rightSideDetectorFixtureDef.isSensor = true;
-        Fixture rightSideDetectorFixture = playerBody.createFixture(rightSideDetectorFixtureDef);
-
-        // define a class to handle collision events for the ground-detector fixture
-        class SideContactListener implements ContactListener {
-            public void beginContact(Contact contact) {
-                // check if the collision is between the detector fixture and a ground tile
-                Fixture fixtureA = contact.getFixtureA();
-                Fixture fixtureB = contact.getFixtureB();
-                if ((fixtureA == groundDetectorFixture && fixtureB.getUserData() == "ground") ||
-                        (fixtureB == groundDetectorFixture && fixtureA.getUserData() == "ground")) {
-                    // increment the number of 'ground' objects we're touching by 1
-                    System.out.println("Well, we're calling this");
-
-                    numTouchingGround++;
-                } else if ((fixtureA == leftSideDetectorFixture && fixtureB.getUserData() == "ground") ||
-                        (fixtureB == leftSideDetectorFixture && fixtureA.getUserData() == "ground")) {
-                    numTouchingLeftSide++;
-                } else if ((fixtureA == rightSideDetectorFixture && fixtureB.getUserData() == "ground") ||
-                        (fixtureB == rightSideDetectorFixture && fixtureA.getUserData() == "ground")) {
-                    numTouchingRightSide++;
-                }
-            }
-
-            public void endContact(Contact contact) {
-                // Check if the collision is between the detector fixture and a ground tile
-                Fixture fixtureA = contact.getFixtureA();
-                Fixture fixtureB = contact.getFixtureB();
-                if ((fixtureA == groundDetectorFixture && fixtureB.getUserData() == "ground") ||
-                        (fixtureB == groundDetectorFixture && fixtureA.getUserData() == "ground")) {
-                    // increment the number of 'ground' objects we're touching by 1
-                    numTouchingGround--;
-                } else if ((fixtureA == leftSideDetectorFixture && fixtureB.getUserData() == "ground") ||
-                        (fixtureB == leftSideDetectorFixture && fixtureA.getUserData() == "ground")) {
-                    numTouchingLeftSide--;
-                } else if ((fixtureA == rightSideDetectorFixture && fixtureB.getUserData() == "ground") ||
-                        (fixtureB == rightSideDetectorFixture && fixtureA.getUserData() == "ground")) {
-                    numTouchingRightSide--;
-                }
-            }
-
-            public void preSolve(Contact contact, Manifold oldManifold) {
-                // empty implementation here
-            }
-
-            public void postSolve(Contact contact, ContactImpulse impulse) {
-                // empty implementation here
-            }
-        }
-
-
-        class PlayerContactListener implements ContactListener {
-            public void beginContact(Contact contact) {
-                // check if the collision is between the detector fixture and a ground tile
-                Fixture fixtureA = contact.getFixtureA();
-                Fixture fixtureB = contact.getFixtureB();
-                if ((fixtureA == playerFixture && fixtureB.getUserData() == "ground") ||
-                        (fixtureB == playerFixture && fixtureA.getUserData() == "ground")) {
-                    // increment the number of 'ground' objects we're touching by 1
-                    bodyNumTouchingGround++;
-                }
-            }
-
-            public void endContact(Contact contact) {
-                // Check if the collision is between the detector fixture and a ground tile
-                Fixture fixtureA = contact.getFixtureA();
-                Fixture fixtureB = contact.getFixtureB();
-                if ((fixtureA == playerFixture && fixtureB.getUserData() == "ground") ||
-                        (fixtureB == playerFixture && fixtureA.getUserData() == "ground")) {
-                    // increment the number of 'ground' objects we're touching by 1
-                    bodyNumTouchingGround--;
-                }
-            }
-
-            public void preSolve(Contact contact, Manifold oldManifold) {
-                // empty implementation here
-            }
-
-            public void postSolve(Contact contact, ContactImpulse impulse) {
-                // empty implementation here
-            }
-        }
-
-        // create a new instance of the contact listener and register it with the world
-//        SideContactListener contactListener = new SideContactListener();
-//        world.setContactListener(contactListener);
-
-        // create a new instance of the player contact listener and register it with the world
-        PlayerContactListener playerContactListener = new PlayerContactListener();
-        world.setContactListener(playerContactListener);
-
-        // ===== END COLLISION DETECTORS =====
-
+        // define rectangular player shape
+        this.fixtureShapes.add(new Rectangle(-PLAYER_WIDTH / 2, -PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT));
 
         // set up player JavaFX element
         playerDisplayRect = new Rectangle(PLAYER_WIDTH * TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE);
         pane.getChildren().add(playerDisplayRect);
-
-
-        groundDetectorDisplayRect.toFront();
     }
 
     public void move(Dictionary<UserInput, Boolean> inputsPressed, double timeDeltaSeconds) {
-        Vec2 playerVel = playerBody.getLinearVelocity();
-        Vec2 newPlayerVel = new Vec2(playerVel);
+        Vector2 newVelocity = new Vector2(this.getVelocity());
 
 //        if (framesUntilCanJump > 0) {
 //            framesUntilCanJump--;
@@ -246,53 +59,25 @@ public class Player implements GameConstants {
 //            }
 //        }
 
-        newPlayerVel.y -= 9.81f * (float) timeDeltaSeconds;
-        newPlayerVel.y *= 0.99;
-//        playerBody.getWorld().getContactManager().findNewContacts();
-//        System.out.println("We're touching ground: " + this.isBodyTouchingGround());
-        playerBody.setLinearVelocity(newPlayerVel);
+        newVelocity.y -= 9.81 * timeDeltaSeconds;
+        newVelocity.y *= 0.99;
 
-        if (this.isBodyTouchingGround()) {
-            Vec2 oppositeDirStep = playerBody.getLinearVelocity();
-            // normalize and reverse
-            double magnitude = Math.hypot(oppositeDirStep.x, oppositeDirStep.y);
-            oppositeDirStep.x /= -magnitude;
-            oppositeDirStep.y /= -magnitude;
-            playerBody.setTransform(playerBody.getPosition().add(playerBody.getLinearVelocity()), 0);
-            System.out.println("We're touching groun now:" + this.isBodyTouchingGround());
+        this.setVelocity(newVelocity);
+
+        // move according to velocity, check collisions
+        super.move(timeDeltaSeconds);
+
+        if (this.getPosition().y < WORLD_BOTTOM) {
+            this.setPosition(PLAYER_START_POSITION);
+            System.out.println("Setting player to these coords: " + PLAYER_START_POSITION);
+            this.setVelocity(new Vector2(0, 0));
         }
 
-        // NOTE: the physics world has NOT updated our position with the above velocity yet,
-        // it will do so in the `world.step()` function. We're 1 frame behind here.
-        Vec2 position = this.getWorldPosition();
-        if (position.y < WORLD_BOTTOM) {
-            playerBody.setTransform(PLAYER_START_POSITION, 0f);
-            playerBody.setLinearVelocity(new Vec2(0, 0));
-        }
     }
 
     public void paint(double scrollX, double scrollY) {
-        Utils.transformToScrollPosition(playerBody, playerShape, playerDisplayRect, scrollX, scrollY);
-        if (this.isTouchingGround()) {
-            groundDetectorDisplayRect.setFill(Color.GREEN);
-        } else {
-            groundDetectorDisplayRect.setFill(Color.DARKRED);
-        }
-        Utils.transformToScrollPosition(playerBody, groundDetectorShape, groundDetectorDisplayRect, scrollX, scrollY);
-
-        if (this.isTouchingLeftWall()) {
-            leftSideDetectorDisplayRect.setFill(Color.GREEN);
-        } else {
-            leftSideDetectorDisplayRect.setFill(Color.DARKRED);
-        }
-        Utils.transformToScrollPosition(playerBody, leftSideDetectorShape, leftSideDetectorDisplayRect, scrollX, scrollY);
-
-        if (this.isTouchingRightWall()) {
-            rightSideDetectorDisplayRect.setFill(Color.GREEN);
-        } else {
-            rightSideDetectorDisplayRect.setFill(Color.DARKRED);
-        }
-        Utils.transformToScrollPosition(playerBody, rightSideDetectorShape, rightSideDetectorDisplayRect, scrollX, scrollY);
+        playerDisplayRect.setX((this.getPosition().x - PLAYER_WIDTH / 2 - scrollX) * TILE_SIZE);
+        playerDisplayRect.setY((this.getPosition().y - PLAYER_HEIGHT - scrollY) * TILE_SIZE * -1);
     }
 
     public boolean isTouchingGround() {
@@ -307,8 +92,5 @@ public class Player implements GameConstants {
         return numTouchingRightSide > 0;
     }
 
-    public Vec2 getWorldPosition() {
-        return this.playerBody.getPosition();
-    }
     public boolean isBodyTouchingGround() { return bodyNumTouchingGround > 0; }
 }

@@ -1,5 +1,3 @@
-import org.jbox2d.common.Vec2;
-
 public class Camera implements GameConstants {
     private double scrollX;
     private double scrollY;
@@ -7,14 +5,14 @@ public class Camera implements GameConstants {
 
     public Camera(Player player) {
         this.player = player;
-        Vec2 playerPos = player.getWorldPosition();
+        Vector2 playerPos = player.getPosition();
         scrollX = playerPos.x - STAGE_WIDTH / TILE_SIZE / 2;
         scrollY = playerPos.y + STAGE_HEIGHT / TILE_SIZE / 2;
     }
 
     public void move(double timeDeltaSeconds) {
         // scroll x, y is the coordinates of the top left of the screen
-        Vec2 playerPos = player.getWorldPosition();
+        Vector2 playerPos = player.getPosition();
         // TODO this timeDeltaSeconds logic will break for >1 second timeDeltaSeconds's
         double targetScrollX = (playerPos.x - STAGE_WIDTH / TILE_SIZE / 2);
         double targetScrollY = (playerPos.y + STAGE_HEIGHT / TILE_SIZE / 2);
