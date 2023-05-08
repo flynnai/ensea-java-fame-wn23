@@ -20,7 +20,34 @@ public class PhysicsEntity implements GameConstants {
         for (List<Tile> row : tileMatrix) {
             int j = 0;
             for (Tile tile : row) {
-                if (tile == null) {
+                // don't detect for slopes
+                if (tile == null || tile.isSlope) {
+                    j++;
+
+                    continue;
+                }
+
+                for (CollidableShape tileFixtureShape : tile.fixtureShapes) {
+                    hitBox.setPosition(this.position);
+                    if (tileFixtureShape.intersectsWith(hitBox)) {
+                        return true;
+                    }
+                }
+                j++;
+
+            }
+            i++;
+        }
+        return false;
+    }
+
+    boolean isTouchingSlope() {
+        // TODO make this work for any size entity, efficient
+        int i = 0;
+        for (List<Tile> row : tileMatrix) {
+            int j = 0;
+            for (Tile tile : row) {
+                if (tile == null || !tile.isSlope) {
                     j++;
 
                     continue;
@@ -44,17 +71,25 @@ public class PhysicsEntity implements GameConstants {
         int row = (int) -Math.floor(point.y) - 1;
         int col = (int) Math.floor(point.x);
         Tile tile = tileMatrix.get(row).get(col);
-        System.out.println(tile);
-        if (tile == null) return false;
+        if (tile == null || tile.isSlope) return false;
 
         for (CollidableShape shape : tile.fixtureShapes) {
-            System.out.println("Testing " + shape + " against " + point);
             if (shape.isPointInside(point)) {
-                System.out.println("It's inside.");
                 return true;
-            } else {
-                System.out.println("It's outside.");
+            }
+        }
+        return false;
+    }
 
+    boolean isPointTouchingSlope(Vector2 point) {
+        int row = (int) -Math.floor(point.y) - 1;
+        int col = (int) Math.floor(point.x);
+        Tile tile = tileMatrix.get(row).get(col);
+        if (tile == null || !tile.isSlope) return false;
+
+        for (CollidableShape shape : tile.fixtureShapes) {
+            if (shape.isPointInside(point)) {
+                return true;
             }
         }
         return false;
@@ -62,10 +97,43 @@ public class PhysicsEntity implements GameConstants {
 
     void move(double timeDeltaSeconds) {
         final double floatAmount = 0.001;
+        boolean wasTouchingSlope = false;
+
+        position.y += velocity.y * timeDeltaSeconds;
+
+        wasTouchingGround = false;
+        if (isTouchingTerrain()) {
+            // find out which side
+            if (isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y + hitBox.height / 2))
+                    || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y + hitBox.height / 2))) {
+                // correct down
+                // ASSUMES tile, doesn't work for complex shapes
+                position.y = Math.ceil(position.y) - hitBox.height / 2 - floatAmount;
+            } else if (isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y - hitBox.height / 2))
+                    || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y - hitBox.height / 2))) {
+                // correct up
+                // ASSUMES tile, doesn't work for complex shapes
+                position.y = Math.floor(position.y) + hitBox.height / 2 + floatAmount;
+                wasTouchingGround = true;
+            }
+            velocity.y = 0;
+        }
+
+        if (isTouchingSlope()) {
+            wasTouchingGround = true;
+            wasTouchingSlope = true;
+            velocity.x *= 0.95;
+            int maxTries = 100;
+            while (maxTries-- > 0 && isPointTouchingSlope(new Vector2(position.x, position.y - hitBox.height / 2))) {
+                position.y += 0.005;
+                velocity.y = 0;
+            }
+        }
+
+
         position.x += velocity.x * timeDeltaSeconds;
 
-        if (isTouchingTerrain()) {
-            System.out.println("We're touching terrain");
+        if (isTouchingTerrain() && !wasTouchingSlope) {
             // find out which side
             if (isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y - hitBox.height / 2))
             || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y + hitBox.height / 2))) {
@@ -79,29 +147,6 @@ public class PhysicsEntity implements GameConstants {
                 position.x = Math.floor(position.x) + hitBox.width / 2 + floatAmount;
             }
             velocity.x = 0;
-        }
-
-        position.y += velocity.y * timeDeltaSeconds;
-
-        wasTouchingGround = false;
-        if (isTouchingTerrain()) {
-            System.out.println("We're touching terrain");
-            // find out which side
-            if (isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y + hitBox.height / 2))
-            || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y + hitBox.height / 2))) {
-                // correct down
-                // ASSUMES tile, doesn't work for complex shapes
-                position.y = Math.ceil(position.y) - hitBox.height / 2 - floatAmount;
-                System.out.println("Touching the top");
-            } else if (isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y - hitBox.height / 2))
-            || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y - hitBox.height / 2))) {
-                // correct up
-                // ASSUMES tile, doesn't work for complex shapes
-                position.y = Math.floor(position.y) + hitBox.height / 2 + floatAmount;
-                System.out.println("What the fuck. Position:");
-                wasTouchingGround = true;
-            }
-            velocity.y = 0;
         }
 
         if (wasTouchingGround) {

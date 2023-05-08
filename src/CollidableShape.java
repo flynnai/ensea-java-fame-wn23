@@ -88,24 +88,23 @@ public class CollidableShape {
     }
 
     public boolean isPointInside(Vector2 point) {
-        // DOESN'T work yet
-        Double side = null;
-
+        double side = Double.NaN;
+        double epsilon = 1e-10;
         // let's go around the shape, and test the side this point is on for each edge
         // if it's all the same side, it's inside. Else, outside.
         for (int i = 0; i < vertices.size(); i++) {
-            Vector2 v1 = vertices.get(i);
-            Vector2 v2 = vertices.get((i + 1) % vertices.size());
+            Vector2 v1 = position.add(vertices.get(i));
+            Vector2 v2 = position.add(vertices.get((i + 1) % vertices.size()));
             double result = (point.y - v1.y) * (v2.x - v1.x)
                     - (point.x - v1.x) * (v2.y - v1.y);
-            if (result == 0.0d) {
-                // point lies on side, good enough
+            if (Math.abs(result) < epsilon) {
+                // point is on edge
                 return true;
-            } else if (side == null) {
-                // no side chosen yet
+            } else if (Double.isNaN(side)) {
+                // no side assigned yet
                 side = result;
             } else if (result * side < 0.0) {
-                // opposite "signs", since multiplication was negative, different sides
+                // opposite signs are negative
                 return false;
             }
         }

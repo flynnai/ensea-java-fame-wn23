@@ -13,6 +13,7 @@ public class CollidableRect extends CollidableShape {
     }
 
     @Override public boolean isPointInside(Vector2 point) {
+        // overridden because it's faster for rectangles to do it this way
         return point.x >= position.x - width / 2 && point.x <= position.x + width / 2
                 && point.y >= position.y - height / 2 && point.y <= position.y + height / 2;
     }
