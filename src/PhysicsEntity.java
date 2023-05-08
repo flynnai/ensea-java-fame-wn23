@@ -5,12 +5,13 @@ import java.util.List;
 public class PhysicsEntity implements GameConstants {
     private Vector2 position;
     private Vector2 velocity;
-    public List<Shape> fixtureShapes;
+    public CollidableRect hitBox;
     private final List<List<Tile>> tileMatrix;
-    public PhysicsEntity(Vector2 position, Vector2 velocity, List<Shape> fixtureShapes, List<List<Tile>> tileMatrix) {
+    public boolean wasTouchingGround = false;
+    public PhysicsEntity(Vector2 position, Vector2 velocity, CollidableRect hitBox, List<List<Tile>> tileMatrix) {
         this.setPosition(position);
         this.setVelocity(velocity);
-        this.fixtureShapes = fixtureShapes;
+        this.hitBox = hitBox;
         this.tileMatrix = tileMatrix;
     }
     boolean isTouchingTerrain() {
@@ -25,14 +26,10 @@ public class PhysicsEntity implements GameConstants {
                     continue;
                 }
 
-                for (Shape tileFixtureShape : tile.fixtureShapes) {
-                    for (Shape myFixtureShape : fixtureShapes) {
-                        myFixtureShape.setTranslateX(this.position.x);
-                        myFixtureShape.setTranslateY(this.position.y);
-                        if (tileFixtureShape.intersects(myFixtureShape.getBoundsInParent())) {
-                            System.out.println("I'm intersecting this tile: " + i + ", " + j);
-                            return true;
-                        }
+                for (CollidableShape tileFixtureShape : tile.fixtureShapes) {
+                    hitBox.setPosition(this.position);
+                    if (tileFixtureShape.intersectsWith(hitBox)) {
+                        return true;
                     }
                 }
                 j++;
@@ -43,27 +40,107 @@ public class PhysicsEntity implements GameConstants {
         return false;
     }
 
-    void move(double timeDeltaSeconds) {
-        position.x += velocity.x * timeDeltaSeconds;
-        position.y += velocity.y * timeDeltaSeconds;
-        // TODO collisions
-        if (isTouchingTerrain()) {
-            // move in opposite direction till not touching
-            int maxTries = 100;
-            Vector2 opposite = new Vector2(velocity.x / -velocity.getMagnitude() / maxTries, velocity.y / -velocity.getMagnitude() / maxTries);
-            System.out.println("Opposite is " + opposite);
-            while(isTouchingTerrain()) {
-                position.x += opposite.x;
-                position.y += opposite.y;
-                if (--maxTries < 0) {
-                    break;
-                }
-            }
+    boolean isPointTouchingTerrain(Vector2 point) {
+        int row = (int) -Math.floor(point.y) - 1;
+        int col = (int) Math.floor(point.x);
+        Tile tile = tileMatrix.get(row).get(col);
+        System.out.println(tile);
+        if (tile == null) return false;
 
-            double damping =0;// 0.3;
-            velocity.x *= -damping;
-            velocity.y *= -damping;
+        for (CollidableShape shape : tile.fixtureShapes) {
+            System.out.println("Testing " + shape + " against " + point);
+            if (shape.isPointInside(point)) {
+                System.out.println("It's inside.");
+                return true;
+            } else {
+                System.out.println("It's outside.");
+
+            }
         }
+        return false;
+    }
+
+    void move(double timeDeltaSeconds) {
+        final double floatAmount = 0.001;
+        position.x += velocity.x * timeDeltaSeconds;
+
+        if (isTouchingTerrain()) {
+            System.out.println("We're touching terrain");
+            // find out which side
+            if (isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y - hitBox.height / 2))
+            || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y + hitBox.height / 2))) {
+                // correct down
+                // ASSUMES tile, doesn't work for complex shapes
+                position.x = Math.ceil(position.x) - hitBox.width / 2 - floatAmount;
+            } else if (isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y - hitBox.height / 2))
+            || isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y + hitBox.height / 2))) {
+                // correct up
+                // ASSUMES tile, doesn't work for complex shapes
+                position.x = Math.floor(position.x) + hitBox.width / 2 + floatAmount;
+            }
+            velocity.x = 0;
+        }
+
+        position.y += velocity.y * timeDeltaSeconds;
+
+        wasTouchingGround = false;
+        if (isTouchingTerrain()) {
+            System.out.println("We're touching terrain");
+            // find out which side
+            if (isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y + hitBox.height / 2))
+            || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y + hitBox.height / 2))) {
+                // correct down
+                // ASSUMES tile, doesn't work for complex shapes
+                position.y = Math.ceil(position.y) - hitBox.height / 2 - floatAmount;
+                System.out.println("Touching the top");
+            } else if (isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y - hitBox.height / 2))
+            || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y - hitBox.height / 2))) {
+                // correct up
+                // ASSUMES tile, doesn't work for complex shapes
+                position.y = Math.floor(position.y) + hitBox.height / 2 + floatAmount;
+                System.out.println("What the fuck. Position:");
+                wasTouchingGround = true;
+            }
+            velocity.y = 0;
+        }
+
+        velocity.x *= 0.99;
+        velocity.y *= 0.99;
+
+        //
+//        if (isTouchingTerrain()) {
+//
+//            // is this a slope? try to move up
+//            double maxSlopePerBlock = 1; // allow 45 deg angle and less
+//            double increase = 0;
+//            double initY = position.y;
+//            while (isTouchingTerrain() && increase <= maxSlopePerBlock * Math.abs(velocity.x * timeDeltaSeconds)) {
+//                increase += Math.abs(position.x) / 10;
+//                position.y = initY + increase;
+//                System.out.println("Trying to move up, increase is " + increase + " out of " + Math.abs(velocity.x));
+//            }
+//
+//            if (increase > maxSlopePerBlock) {
+//                // unsuccessful slope, move back instead
+//                position.y = initY;
+//
+//                // move in opposite direction till not touching
+//                int maxTries = 100;
+//                Vector2 opposite = new Vector2(velocity.x / -velocity.getMagnitude() / maxTries, velocity.y / -velocity.getMagnitude() / maxTries);
+//                System.out.println("Opposite is " + opposite);
+//                while (isTouchingTerrain()) {
+//                    position.x += opposite.x;
+//                    position.y += opposite.y;
+//                    if (--maxTries < 0) {
+//                        break;
+//                    }
+//                }
+//
+//                double damping = 0;// 0.3;
+//                velocity.x *= -damping;
+//                velocity.y *= -damping;
+//            }
+//        }
     }
 
     public void setPosition(Vector2 newPos) {

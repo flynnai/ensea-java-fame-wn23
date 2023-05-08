@@ -19,4 +19,21 @@ public class Vector2 {
     public double getMagnitude() {
         return Math.hypot(x, y);
     }
+
+    // utils for intersection detection
+    public Vector2 normalize() {
+        double mag = this.getMagnitude();
+        return new Vector2(this.x / mag, this.y / mag);
+    }
+
+    public Vector2 add(Vector2 other) {
+        return new Vector2(this.x + other.x, this.y + other.y);
+    }
+    public Vector2 subtract(Vector2 other) {
+        return new Vector2(this.x - other.x, this.y - other.y);
+    }
+
+    public double dotProduct(Vector2 other) {
+        return this.x * other.x + this.y * other.y;
+    }
 }

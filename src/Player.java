@@ -8,8 +8,6 @@ import java.util.Dictionary;
 import java.util.List;
 
 public class Player extends PhysicsEntity implements GameConstants {
-    private final float PLAYER_WIDTH = 0.5f;
-    private final float PLAYER_HEIGHT = 1f;
     private int numTouchingGround = 0;
     private int numTouchingLeftSide = 0;
     private int numTouchingRightSide = 0;
@@ -23,10 +21,7 @@ public class Player extends PhysicsEntity implements GameConstants {
 
 
     public Player(Pane pane, List<List<Tile>> tileMatrix) {
-        super(PLAYER_START_POSITION, new Vector2(0, 0), new ArrayList<>(), tileMatrix);
-
-        // define rectangular player shape
-        this.fixtureShapes.add(new Rectangle(-PLAYER_WIDTH / 2, -PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT));
+        super(PLAYER_START_POSITION, new Vector2(0, 0), new CollidableRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT), tileMatrix);
 
         // set up player JavaFX element
         playerDisplayRect = new Rectangle(PLAYER_WIDTH * TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE);
@@ -39,7 +34,7 @@ public class Player extends PhysicsEntity implements GameConstants {
         if (framesUntilCanJump > 0) {
             framesUntilCanJump--;
         } else if (inputsPressed.get(UserInput.UP)) {
-            if (this.isTouchingGround() && this.getVelocity().y < 3) {
+            if (wasTouchingGround && this.getVelocity().y < 3) {
                 newVelocity.y = 10;
                 // we want velocity set for jump only 1 time
                 framesUntilCanJump = 15;
@@ -59,10 +54,7 @@ public class Player extends PhysicsEntity implements GameConstants {
             }
         }
 
-        newVelocity.x *= 0.99;
-
         newVelocity.y -= 9.81 * timeDeltaSeconds;
-        newVelocity.y *= 0.99;
 
         this.setVelocity(newVelocity);
 
@@ -79,7 +71,8 @@ public class Player extends PhysicsEntity implements GameConstants {
 
     public void paint(double scrollX, double scrollY) {
         playerDisplayRect.setX((this.getPosition().x - PLAYER_WIDTH / 2 - scrollX) * TILE_SIZE);
-        playerDisplayRect.setY((this.getPosition().y - PLAYER_HEIGHT - scrollY) * TILE_SIZE * -1);
+        // TODO why is this PLAYER_HEIGHT * 3/2?
+        playerDisplayRect.setY((this.getPosition().y + PLAYER_HEIGHT / 2 - scrollY) * TILE_SIZE * -1);
     }
 
     public boolean isTouchingGround() {

@@ -12,4 +12,6 @@ public interface GameConstants {
     // parallax background speed
     public static final double BACKGROUND_SPEED = 30;
     public static final int COLLIDABLE_LAYER_NUMBER = 1;
+    public final float PLAYER_WIDTH = 0.5f;
+    public final float PLAYER_HEIGHT = 1f;
 }

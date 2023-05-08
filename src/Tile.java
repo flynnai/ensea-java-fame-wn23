@@ -8,7 +8,7 @@ import java.util.List;
 public class Tile {
     public int tilesetRow;
     public int tilesetCol;
-    public final List<Shape> fixtureShapes;
+    public final List<CollidableShape> fixtureShapes;
 
     public Tile(int tilesetRow, int tilesetCol, double x, double y, boolean isCollidable) {
         this.tilesetRow = tilesetRow;
@@ -16,7 +16,9 @@ public class Tile {
 
         this.fixtureShapes = new ArrayList<>();
         if (isCollidable) {
-            this.fixtureShapes.add(new Rectangle(x, y, 1, 1));
+            CollidableRect square = new CollidableRect(0, 0, 1, 1);
+            square.setPosition(new Vector2(x, y));
+            this.fixtureShapes.add(square);
         }
     }
 }
