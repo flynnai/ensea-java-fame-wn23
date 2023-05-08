@@ -104,7 +104,11 @@ public class PhysicsEntity implements GameConstants {
             velocity.y = 0;
         }
 
-        velocity.x *= 0.99;
+        if (wasTouchingGround) {
+            velocity.x *= 0.95;
+        } else {
+            velocity.x *= 0.99;
+        }
         velocity.y *= 0.99;
 
         //

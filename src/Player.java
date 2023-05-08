@@ -46,11 +46,11 @@ public class Player extends PhysicsEntity implements GameConstants {
         }
         if (inputsPressed.get(UserInput.LEFT)) {
             if (this.getVelocity().x > -PLAYER_MAX_SPEED) {
-                newVelocity.x += (this.isTouchingGround() ? -PLAYER_GROUND_MOVE_FORCE : -PLAYER_AIR_MOVE_FORCE) * timeDeltaSeconds;
+                newVelocity.x += (wasTouchingGround ? -PLAYER_GROUND_MOVE_FORCE : -PLAYER_AIR_MOVE_FORCE) * timeDeltaSeconds;
             }
         } else if (inputsPressed.get(UserInput.RIGHT)) {
             if (this.getVelocity().x < PLAYER_MAX_SPEED) {
-                newVelocity.x += (this.isTouchingGround() ? PLAYER_GROUND_MOVE_FORCE : PLAYER_AIR_MOVE_FORCE) * timeDeltaSeconds;
+                newVelocity.x += (wasTouchingGround ? PLAYER_GROUND_MOVE_FORCE : PLAYER_AIR_MOVE_FORCE) * timeDeltaSeconds;
             }
         }
 
@@ -73,9 +73,5 @@ public class Player extends PhysicsEntity implements GameConstants {
         playerDisplayRect.setX((this.getPosition().x - PLAYER_WIDTH / 2 - scrollX) * TILE_SIZE);
         // TODO why is this PLAYER_HEIGHT * 3/2?
         playerDisplayRect.setY((this.getPosition().y + PLAYER_HEIGHT / 2 - scrollY) * TILE_SIZE * -1);
-    }
-
-    public boolean isTouchingGround() {
-        return numTouchingGround > 0;
     }
 }
