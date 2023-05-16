@@ -90,7 +90,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         }
 
         if (player.wasTouchingGround && mode != AnimationMode.ROLLING) {
-            if (Math.abs(velocity.x) < 0.3) {
+            if (Math.abs(velocity.x) < 1.0) {
                 mode = AnimationMode.STANDING;
             } else {
                 if (mode != AnimationMode.RUNNING) {

@@ -65,7 +65,7 @@ public class Player extends PhysicsEntity implements GameConstants {
         // move according to velocity, check collisions
         super.move(timeDeltaSeconds);
 
-        if (wasTouchingGround && newVelocity.y < -2 && Math.abs(newVelocity.x) > PLAYER_MAX_SPEED * 0.7) {
+        if (wasTouchingGround && newVelocity.y < -0.8 * PLAYER_JUMP_VELOCITY && Math.abs(newVelocity.x) > PLAYER_MAX_SPEED * 0.7) {
             animation.initiateRolling();
         }
 
