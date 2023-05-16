@@ -39,7 +39,7 @@ public class Player extends PhysicsEntity implements GameConstants {
             framesUntilCanJump--;
         } else if (inputsPressed.get(UserInput.UP)) {
             if (wasTouchingGround && this.getVelocity().y < 3) {
-                newVelocity.y = 10;
+                newVelocity.y = PLAYER_JUMP_VELOCITY;
                 // we want velocity set for jump only 1 time
                 framesUntilCanJump = 15;
             }
@@ -75,13 +75,9 @@ public class Player extends PhysicsEntity implements GameConstants {
     }
 
     public void paint(double scrollX, double scrollY) {
-        playerDisplayRect.setX((this.getPosition().x - PLAYER_WIDTH / 2 - scrollX) * TILE_SIZE);
-        playerDisplayRect.setY((this.getPosition().y + PLAYER_HEIGHT / 2 - scrollY) * TILE_SIZE * -1);
+//        playerDisplayRect.setX((this.getPosition().x - PLAYER_WIDTH / 2 - scrollX) * TILE_SIZE);
+//        playerDisplayRect.setY((this.getPosition().y + PLAYER_HEIGHT / 2 - scrollY) * TILE_SIZE * -1);
 
-        animation.paint();
-        animation.setFitWidth(PLAYER_WIDTH * TILE_SIZE);
-        animation.setFitHeight(PLAYER_HEIGHT * TILE_SIZE);
-        animation.setX((this.getPosition().x - PLAYER_WIDTH / 2 - scrollX) * TILE_SIZE);
-        animation.setY((this.getPosition().y + PLAYER_HEIGHT / 2 - scrollY) * TILE_SIZE * -1);
+        animation.paint(scrollX, scrollY);
     }
 }
