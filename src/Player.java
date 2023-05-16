@@ -1,3 +1,4 @@
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -6,6 +7,7 @@ import javafx.scene.transform.Translate;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.List;
+
 
 public class Player extends PhysicsEntity implements GameConstants {
     private int numTouchingGround = 0;
@@ -18,7 +20,7 @@ public class Player extends PhysicsEntity implements GameConstants {
     Rectangle leftSideDetectorDisplayRect;
     Rectangle rightSideDetectorDisplayRect;
     int framesUntilCanJump = 0;
-
+    private PlayerAnimation animation;
 
     public Player(Pane pane, List<List<Tile>> tileMatrix) {
         super(PLAYER_START_POSITION, new Vector2(0, 0), new CollidableRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT), tileMatrix);
@@ -26,6 +28,8 @@ public class Player extends PhysicsEntity implements GameConstants {
         // set up player JavaFX element
         playerDisplayRect = new Rectangle(PLAYER_WIDTH * TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE);
         pane.getChildren().add(playerDisplayRect);
+        animation = new PlayerAnimation(this);
+        pane.getChildren().add(animation);
     }
 
     public void move(Dictionary<UserInput, Boolean> inputsPressed, double timeDeltaSeconds) {
@@ -67,11 +71,17 @@ public class Player extends PhysicsEntity implements GameConstants {
             this.setVelocity(new Vector2(0, 0));
         }
 
+        animation.move(timeDeltaSeconds);
     }
 
     public void paint(double scrollX, double scrollY) {
         playerDisplayRect.setX((this.getPosition().x - PLAYER_WIDTH / 2 - scrollX) * TILE_SIZE);
-        // TODO why is this PLAYER_HEIGHT * 3/2?
         playerDisplayRect.setY((this.getPosition().y + PLAYER_HEIGHT / 2 - scrollY) * TILE_SIZE * -1);
+
+        animation.paint();
+        animation.setFitWidth(PLAYER_WIDTH * TILE_SIZE);
+        animation.setFitHeight(PLAYER_HEIGHT * TILE_SIZE);
+        animation.setX((this.getPosition().x - PLAYER_WIDTH / 2 - scrollX) * TILE_SIZE);
+        animation.setY((this.getPosition().y + PLAYER_HEIGHT / 2 - scrollY) * TILE_SIZE * -1);
     }
 }
