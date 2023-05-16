@@ -43,6 +43,9 @@ public class GamePage implements GameConstants {
         // set up player in world
         player = new Player(pane, tileMap.getCollidableLayerMatrix());
 
+        // move foreground layer in front of player
+        tileMap.moveLayerToForeground(FOREGROUND_LAYER_NUMBER);
+
         // set up camera to follow player
         camera = new Camera(player);
 

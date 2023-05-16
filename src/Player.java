@@ -65,6 +65,10 @@ public class Player extends PhysicsEntity implements GameConstants {
         // move according to velocity, check collisions
         super.move(timeDeltaSeconds);
 
+        if (wasTouchingGround && newVelocity.y < -2 && Math.abs(newVelocity.x) > PLAYER_MAX_SPEED * 0.7) {
+            animation.initiateRolling();
+        }
+
         if (this.getPosition().y < WORLD_BOTTOM) {
             this.setPosition(PLAYER_START_POSITION);
             System.out.println("Setting player to these coords: " + PLAYER_START_POSITION);

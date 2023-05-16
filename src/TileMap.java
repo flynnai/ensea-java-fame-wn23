@@ -69,4 +69,8 @@ public class TileMap implements GameConstants {
     public List<List<Tile>> getCollidableLayerMatrix() {
         return this.layers.get(COLLIDABLE_LAYER_NUMBER).tileMatrix;
     }
+
+    public void moveLayerToForeground(int i) {
+        this.layers.get(i).moveToFront();
+    }
 }

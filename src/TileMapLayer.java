@@ -97,4 +97,12 @@ public class TileMapLayer implements GameConstants {
             }
         }
     }
+
+    public void moveToFront() {
+        for (List<ImageView> row : tileViews) {
+            for (ImageView node : row) {
+                node.toFront();
+            }
+        }
+    }
 }

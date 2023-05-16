@@ -9,6 +9,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         RUNNING,
         STANDING,
         JUMPING,
+        ROLLING,
     }
     enum Direction {
         LEFT,
@@ -25,6 +26,13 @@ public class PlayerAnimation extends ImageView implements GameConstants {
     public PlayerAnimation(Player player) {
         super(new Image("file:./img/sprite_sheets/parkour_sprite.png"));
         this.player = player;
+    }
+
+    public void initiateRolling() {
+        // rolling is frames 35-40
+        mode = AnimationMode.ROLLING;
+        frameNum = 35;
+        lastAnimationTime = 0; // give us a full frame before change
     }
 
     public void move(double timeDeltaSeconds) {
@@ -57,10 +65,15 @@ public class PlayerAnimation extends ImageView implements GameConstants {
             } else if (mode == AnimationMode.STANDING) {
                 frameNum = 0;
             } else if (mode == AnimationMode.JUMPING) {
-                System.out.println("Frame num: " + frameNum);
                 frameNum++;
                 if (frameNum > 88) {
                     frameNum = 88;
+                }
+            } else if (mode == AnimationMode.ROLLING) {
+                frameNum++;
+                if (frameNum >= 40) {
+                    frameNum = 0;
+                    mode = AnimationMode.STANDING;
                 }
             }
         }
@@ -76,7 +89,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
             mode = AnimationMode.STANDING;
         }
 
-        if (mode != AnimationMode.JUMPING) {
+        if (player.wasTouchingGround && mode != AnimationMode.ROLLING) {
             if (Math.abs(velocity.x) < 0.3) {
                 mode = AnimationMode.STANDING;
             } else {
