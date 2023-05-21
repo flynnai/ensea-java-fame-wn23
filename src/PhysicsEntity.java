@@ -8,12 +8,14 @@ public class PhysicsEntity implements GameConstants {
     public CollidableRect hitBox;
     private final List<List<Tile>> tileMatrix;
     public boolean wasTouchingGround = false;
+
     public PhysicsEntity(Vector2 position, Vector2 velocity, CollidableRect hitBox, List<List<Tile>> tileMatrix) {
         this.setPosition(position);
         this.setVelocity(velocity);
         this.hitBox = hitBox;
         this.tileMatrix = tileMatrix;
     }
+
     boolean isTouchingTerrain() {
         // TODO make this work for any size entity, efficient
         int i = 0;
@@ -70,7 +72,12 @@ public class PhysicsEntity implements GameConstants {
     boolean isPointTouchingTerrain(Vector2 point) {
         int row = (int) -Math.floor(point.y) - 1;
         int col = (int) Math.floor(point.x);
-        Tile tile = tileMatrix.get(row).get(col);
+        Tile tile = null;
+        try {
+            tile = tileMatrix.get(row).get(col);
+        } catch (IndexOutOfBoundsException e) {
+            // tile doesn't exist in map
+        }
         if (tile == null || tile.isSlope) return false;
 
         for (CollidableShape shape : tile.fixtureShapes) {
@@ -136,12 +143,12 @@ public class PhysicsEntity implements GameConstants {
         if (isTouchingTerrain() && !wasTouchingSlope) {
             // find out which side
             if (isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y - hitBox.height / 2))
-            || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y + hitBox.height / 2))) {
+                    || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y + hitBox.height / 2))) {
                 // correct down
                 // ASSUMES tile, doesn't work for complex shapes
                 position.x = Math.ceil(position.x) - hitBox.width / 2 - floatAmount;
             } else if (isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y - hitBox.height / 2))
-            || isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y + hitBox.height / 2))) {
+                    || isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y + hitBox.height / 2))) {
                 // correct up
                 // ASSUMES tile, doesn't work for complex shapes
                 position.x = Math.floor(position.x) + hitBox.width / 2 + floatAmount;
@@ -199,6 +206,7 @@ public class PhysicsEntity implements GameConstants {
     public void setVelocity(Vector2 newVel) {
         this.velocity = new Vector2(newVel);
     }
+
     public final Vector2 getPosition() {
         return this.position;
     }
@@ -206,6 +214,7 @@ public class PhysicsEntity implements GameConstants {
     public final Vector2 getVelocity() {
         return this.velocity;
     }
+
     public final CollidableRect getHitBox() {
         return this.hitBox;
     }

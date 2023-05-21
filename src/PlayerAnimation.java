@@ -10,6 +10,8 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         STANDING,
         JUMPING,
         ROLLING,
+        EDGE_HANGING,
+        HANGING_EDGE_CLIMBING,
     }
     enum Direction {
         LEFT,
@@ -20,7 +22,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
     AnimationMode mode = AnimationMode.STANDING;
     Player player;
     double lastAnimationTime = 0;
-    final double animationSpeed = 0.07;
+    final double animationSpeed = 0.3; //0.07;
     Direction direction = Direction.RIGHT;
 
     public PlayerAnimation(Player player) {
@@ -33,6 +35,16 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         mode = AnimationMode.ROLLING;
         frameNum = 35;
         lastAnimationTime = 0; // give us a full frame before change
+    }
+
+    public void initiateHanging(Direction direction) {
+        mode = AnimationMode.EDGE_HANGING;
+        frameNum = 68;
+        this.direction = direction;
+    }
+
+    public void initiateClimbUpFromHanging() {
+        mode = AnimationMode.HANGING_EDGE_CLIMBING;
     }
 
     public void move(double timeDeltaSeconds) {
@@ -75,6 +87,16 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                     frameNum = 0;
                     mode = AnimationMode.STANDING;
                 }
+            } else if (mode == AnimationMode.HANGING_EDGE_CLIMBING) {
+                frameNum++;
+                if (frameNum == 70) {
+                    player.setPosition(player.getPosition().add(new Vector2(0, 0.1 * PLAYER_HEIGHT)));
+                }
+                if (frameNum >= 75) {
+                    frameNum = 0;
+                    mode = AnimationMode.STANDING;
+                    player.endClimbingFromHanging();
+                }
             }
         }
 
@@ -89,7 +111,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
             mode = AnimationMode.STANDING;
         }
 
-        if (player.wasTouchingGround && mode != AnimationMode.ROLLING) {
+        if (player.wasTouchingGround && (mode == AnimationMode.STANDING || mode == AnimationMode.JUMPING || mode == AnimationMode.RUNNING)) {
             if (Math.abs(velocity.x) < 1.0) {
                 mode = AnimationMode.STANDING;
             } else {
@@ -113,11 +135,11 @@ public class PlayerAnimation extends ImageView implements GameConstants {
     public void paint(double scrollX, double scrollY) {
         // visually set correct frame by cropping
         final int FRAME_SIZE = 400;
-        final int FRAME_PADDING = 50;
+        final double FRAME_PADDING_PERCENT = 50.0 / 400;
         final int SPRITESHEET_FRAMES_WIDE = 24;
-        Rectangle cropArea = new Rectangle(FRAME_SIZE - FRAME_PADDING * 2, FRAME_SIZE - FRAME_PADDING * 2);
-        cropArea.setTranslateX(FRAME_SIZE * (frameNum % SPRITESHEET_FRAMES_WIDE) + FRAME_PADDING); // X position of the crop area
-        cropArea.setTranslateY(FRAME_SIZE * Math.floor((double) frameNum / SPRITESHEET_FRAMES_WIDE) + FRAME_PADDING); // Y position of the crop area
+        Rectangle cropArea = new Rectangle(FRAME_SIZE, FRAME_SIZE);
+        cropArea.setTranslateX(FRAME_SIZE * (frameNum % SPRITESHEET_FRAMES_WIDE)); // X position of the crop area
+        cropArea.setTranslateY(FRAME_SIZE * Math.floor((double) frameNum / SPRITESHEET_FRAMES_WIDE)); // Y position of the crop area
 
         this.setViewport(
                 new Rectangle2D(
@@ -133,7 +155,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         this.setFitWidth(PLAYER_HEIGHT * TILE_SIZE);
         this.setFitHeight(PLAYER_HEIGHT * TILE_SIZE);
         this.setX((player.getPosition().x - PLAYER_HEIGHT / 2 - scrollX) * TILE_SIZE);
-        this.setY((player.getPosition().y + PLAYER_HEIGHT / 2 - scrollY) * TILE_SIZE * -1);
+        this.setY((player.getPosition().y + PLAYER_HEIGHT / 2 - FRAME_PADDING_PERCENT * PLAYER_HEIGHT - scrollY) * TILE_SIZE * -1);
 
 
     }
