@@ -97,8 +97,8 @@ public class Player extends PhysicsEntity implements GameConstants {
             timeLeftTillCanHang = Math.max(0.0, timeLeftTillCanHang - timeDeltaSeconds);
             if (getVelocity().y < -0.1
                     && timeLeftTillCanHang <= 0.01
-                    && isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT / 2)))
-                    && !isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT / 2 + 0.1)))) {
+                    && isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT * 0.2)))
+                    && !isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT * 0.2 + 0.1)))) {
                 actionMode = PlayerActionMode.EDGE_HANGING;
                 animation.initiateHanging(Direction.RIGHT);
                 setVelocity(new Vector2(0, 0));
