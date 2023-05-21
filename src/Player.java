@@ -47,7 +47,8 @@ public class Player extends PhysicsEntity implements GameConstants {
                 framesUntilCanJump--;
             } else if (inputsPressed.get(UserInput.UP)) {
                 if (wasTouchingGround && this.getVelocity().y < 3) {
-                    newVelocity.y = PLAYER_JUMP_VELOCITY;
+//                    newVelocity.y = PLAYER_JUMP_VELOCITY;
+                    animation.initiateJumping();
                     // we want velocity set for jump only 1 time
                     framesUntilCanJump = 15;
                 }

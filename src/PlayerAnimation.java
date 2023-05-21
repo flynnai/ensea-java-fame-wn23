@@ -1,3 +1,4 @@
+import javafx.animation.Animation;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -13,6 +14,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
     enum AnimationMode {
         RUNNING,
         STANDING,
+        PRE_JUMPING,
         JUMPING,
         ROLLING,
         EDGE_HANGING,
@@ -33,6 +35,11 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         this.player = player;
     }
 
+    public void initiateJumping() {
+        mode = AnimationMode.PRE_JUMPING;
+        frameNum = 81;
+        lastAnimationTime = 0;
+    }
     public void initiateRolling() {
         // rolling is frames 35-40
         mode = AnimationMode.ROLLING;
@@ -88,6 +95,12 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                 }
             } else if (mode == AnimationMode.STANDING) {
                 frameNum = 0;
+            } else if (mode == AnimationMode.PRE_JUMPING) {
+                frameNum++;
+                // actually jump
+                velocity = velocity.add(new Vector2(0, PLAYER_JUMP_VELOCITY));
+                player.setVelocity(velocity);
+                mode = AnimationMode.JUMPING;
             } else if (mode == AnimationMode.JUMPING) {
                 frameNum++;
                 if (frameNum > 88) {
@@ -139,17 +152,9 @@ public class PlayerAnimation extends ImageView implements GameConstants {
 
 
 
-        if (velocity.y > 0.2 && (mode == AnimationMode.RUNNING || mode == AnimationMode.STANDING)) {
-            if (mode != AnimationMode.JUMPING) {
-                frameNum = 81;
-            }
-            mode = AnimationMode.JUMPING;
-        } else if (player.wasTouchingGround && (mode == AnimationMode.JUMPING || mode == AnimationMode.FALLING)) {
-            mode = AnimationMode.STANDING;
-        }
 
-        if (player.wasTouchingGround) {
-            if (mode == AnimationMode.STANDING || mode == AnimationMode.JUMPING || mode == AnimationMode.RUNNING) {
+        if (player.wasTouchingGround && velocity.y < 0.1) {
+            if (mode == AnimationMode.STANDING || mode == AnimationMode.JUMPING || mode == AnimationMode.RUNNING || mode == AnimationMode.FALLING) {
                 if (Math.abs(velocity.x) < 1.0) {
                     mode = AnimationMode.STANDING;
                 } else {
@@ -172,8 +177,6 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         } else if (velocity.x < -0.1){
             direction = Direction.LEFT;
         }
-
-        // 35 - 40 for rolling
     }
 
     public void paint(double scrollX, double scrollY) {
