@@ -121,13 +121,18 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                     frameNum = 0;
                     mode = AnimationMode.STANDING;
                     player.endHanging();
+                    // teleport up on edge
+                    Vector2 newPosition = new Vector2(
+                            0,
+                            Math.floor(player.getPosition().y + PLAYER_HEIGHT / 2 + 0.5) - 1 + PLAYER_HEIGHT / 2
+                    );
                     if (direction == Direction.RIGHT) {
-                        // teleport up on edge to the right
-                        player.setPosition(new Vector2(
-                                Math.floor(player.getPosition().x + PLAYER_WIDTH * 0.75 + 0.1) + PLAYER_WIDTH * 0.3,
-                                Math.floor(player.getPosition().y + PLAYER_HEIGHT / 2 + 0.2) - 1 + PLAYER_HEIGHT / 2
-                        ));
+                        newPosition.x = Math.floor(player.getPosition().x + PLAYER_WIDTH * 0.75 + 0.1) + PLAYER_WIDTH * 0.3;
+                    } else {
+                        newPosition.x = Math.ceil(player.getPosition().x - PLAYER_WIDTH * 0.75 - 0.1) - PLAYER_WIDTH * 0.3;
                     }
+                    player.setPosition(newPosition);
+
                 }
             } else if (mode == AnimationMode.FALLING) {
                 frameNum++;
@@ -182,7 +187,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
     public void paint(double scrollX, double scrollY) {
         // visually set correct frame by cropping
         final int FRAME_SIZE = 400;
-        final double FRAME_PADDING_RATIO = 50.0 / 400;
+        final double FRAME_PADDING_RATIO = 70.0 / 400;
         final int SPRITESHEET_FRAMES_WIDE = 24;
         Rectangle cropArea = new Rectangle(FRAME_SIZE, FRAME_SIZE);
         cropArea.setTranslateX(FRAME_SIZE * (frameNum % SPRITESHEET_FRAMES_WIDE)); // X position of the crop area
@@ -199,10 +204,10 @@ public class PlayerAnimation extends ImageView implements GameConstants {
 
         this.setScaleX(direction == Direction.LEFT ? -1 : 1);
 
-        this.setFitWidth(PLAYER_HEIGHT * (1 + FRAME_PADDING_RATIO) * TILE_SIZE);
-        this.setFitHeight(PLAYER_HEIGHT * (1 + FRAME_PADDING_RATIO) * TILE_SIZE);
-        this.setX((player.getPosition().x - PLAYER_HEIGHT / 2 - scrollX) * TILE_SIZE);
-        this.setY((player.getPosition().y + PLAYER_HEIGHT / 2 - scrollY) * TILE_SIZE * -1);
+        this.setFitWidth(PLAYER_HEIGHT * (1 + FRAME_PADDING_RATIO * 2) * TILE_SIZE);
+        this.setFitHeight(PLAYER_HEIGHT * (1 + FRAME_PADDING_RATIO * 2) * TILE_SIZE);
+        this.setX((player.getPosition().x - PLAYER_HEIGHT / 2 - PLAYER_HEIGHT * FRAME_PADDING_RATIO - scrollX) * TILE_SIZE);
+        this.setY((player.getPosition().y + PLAYER_HEIGHT / 2 + PLAYER_HEIGHT * FRAME_PADDING_RATIO - scrollY) * TILE_SIZE * -1);
 
 
     }

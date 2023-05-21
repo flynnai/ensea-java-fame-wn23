@@ -74,7 +74,8 @@ public class Player extends PhysicsEntity implements GameConstants {
                 animation.initiateClimbUpFromHanging();
             }
 
-            if (animation.direction == Direction.RIGHT && inputsPressed.get(UserInput.LEFT)) {
+            if (animation.direction == Direction.RIGHT && inputsPressed.get(UserInput.LEFT)
+                    || animation.direction == Direction.LEFT && inputsPressed.get(UserInput.RIGHT)) {
                 animation.initiateHangingPressOff();
                 actionMode = PlayerActionMode.EDGE_PRESSING;
             }
@@ -97,18 +98,25 @@ public class Player extends PhysicsEntity implements GameConstants {
             }
 
             timeLeftTillCanHang = Math.max(0.0, timeLeftTillCanHang - timeDeltaSeconds);
-            if (getVelocity().y < -0.1
-                    && timeLeftTillCanHang <= 0.01
-                    && isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT * 0.4)))
-                    && !isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT * 0.4 + 0.1)))) {
-                actionMode = PlayerActionMode.EDGE_HANGING;
-                animation.initiateHanging(Direction.RIGHT);
-                setVelocity(new Vector2(0, 0));
-                // relocate to be perfectly far from the edge
-                setPosition(new Vector2(
-                    Math.floor(getPosition().x + PLAYER_WIDTH / 2 + 0.1) - PLAYER_WIDTH * 0.7,
-                    Math.floor(getPosition().y + PLAYER_HEIGHT / 2 + 0.1) + PLAYER_HEIGHT * 0.0
-                ));
+            Vector2 sensorOffset = new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT * 0.4);
+            if (getVelocity().y < -0.1 && timeLeftTillCanHang <= 0.01) {
+                boolean isTouchingRight = isPointTouchingTerrain(getPosition().add(sensorOffset))
+                        && !isPointTouchingTerrain(getPosition().add(sensorOffset.add(new Vector2(0, 0.1))));
+                boolean isTouchingLeft = isPointTouchingTerrain(getPosition().add(sensorOffset.flipX()))
+                        && !isPointTouchingTerrain(getPosition().add(sensorOffset.flipX().add(new Vector2(0, 0.1))));
+                if (isTouchingLeft || isTouchingRight) {
+                    actionMode = PlayerActionMode.EDGE_HANGING;
+                    animation.initiateHanging(isTouchingRight ? Direction.RIGHT : Direction.LEFT);
+                    setVelocity(new Vector2(0, 0));
+                    // relocate to be perfectly far from the edge
+                    Vector2 newPosition = new Vector2(0, Math.floor(getPosition().y + PLAYER_HEIGHT / 2 + 0.1) - PLAYER_HEIGHT * 0.1);
+                    if (isTouchingRight) {
+                        newPosition.x = Math.floor(getPosition().x + PLAYER_WIDTH / 2 + 0.1) - PLAYER_WIDTH * 0.7;
+                    } else {
+                        newPosition.x = Math.ceil(getPosition().x - PLAYER_WIDTH / 2 - 0.1) + PLAYER_WIDTH * 0.69;
+                    }
+                    setPosition(newPosition);
+                }
             }
         } else if (actionMode == PlayerActionMode.EDGE_HANGING) {
 
@@ -133,6 +141,6 @@ public class Player extends PhysicsEntity implements GameConstants {
 
     public void endHanging() {
         actionMode = PlayerActionMode.NORMAL;
-        timeLeftTillCanHang = 1.0;
+        timeLeftTillCanHang = 0.5;
     }
 }
