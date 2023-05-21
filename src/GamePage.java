@@ -89,7 +89,7 @@ public class GamePage implements GameConstants {
         // update the FPS counter's frame count
         fpsCounter.move(currentSecondsTime);
         // see if any entities are touching player
-        for (CollectableEntity entity : collectableEntities) entity.move(player);
+        for (CollectableEntity entity : collectableEntities) entity.move(currentSecondsTime, player);
     }
 
     private void paint() {

@@ -7,7 +7,7 @@ public abstract class CollectableEntity implements GameConstants {
         this.collectRadius = collectRadius;
     }
 
-    public void move(Player player) {
+    public void move(double currentSecondsTime, Player player) {
         if (player.getPosition().subtract(position).getMagnitude() < collectRadius) {
             getCollected();
         }
