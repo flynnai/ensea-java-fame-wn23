@@ -77,6 +77,11 @@ public class Player extends PhysicsEntity implements GameConstants {
                 animation.initiateHangingPressOff();
                 actionMode = PlayerActionMode.EDGE_PRESSING;
             }
+
+            if (inputsPressed.get(UserInput.DOWN)) {
+                animation.initiateFallFromHanging();
+                endHanging();
+            }
         }
 
         this.setVelocity(newVelocity);
@@ -89,7 +94,7 @@ public class Player extends PhysicsEntity implements GameConstants {
                 animation.initiateRolling();
             }
 
-            timeLeftTillCanHang = Math.min(0.0, timeLeftTillCanHang - timeDeltaSeconds);
+            timeLeftTillCanHang = Math.max(0.0, timeLeftTillCanHang - timeDeltaSeconds);
             if (getVelocity().y < -0.1
                     && timeLeftTillCanHang <= 0.01
                     && isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT / 2)))
@@ -124,7 +129,7 @@ public class Player extends PhysicsEntity implements GameConstants {
         animation.paint(scrollX, scrollY);
     }
 
-    public void endClimbingFromHanging() {
+    public void endHanging() {
         actionMode = PlayerActionMode.NORMAL;
         timeLeftTillCanHang = 1.0;
     }

@@ -54,6 +54,10 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         frameNum = 67;
         lastAnimationTime = 0;
     }
+    public void initiateFallFromHanging() {
+        mode = AnimationMode.FALLING;
+        frameNum = 119;
+    }
 
     public void move(double timeDeltaSeconds) {
         Vector2 velocity = player.getVelocity();
@@ -103,7 +107,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                 if (frameNum >= 75) {
                     frameNum = 0;
                     mode = AnimationMode.STANDING;
-                    player.endClimbingFromHanging();
+                    player.endHanging();
                     if (direction == Direction.RIGHT) {
                         // teleport up on edge to the right
                         player.setPosition(new Vector2(
@@ -128,7 +132,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                         jumpVelocity.y
                     ));
 
-                    player.endClimbingFromHanging();
+                    player.endHanging();
                 }
             }
         }
