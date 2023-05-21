@@ -4,6 +4,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
 
+enum Direction {
+    LEFT,
+    RIGHT
+}
+
 public class PlayerAnimation extends ImageView implements GameConstants {
     enum AnimationMode {
         RUNNING,
@@ -12,17 +17,14 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         ROLLING,
         EDGE_HANGING,
         HANGING_EDGE_CLIMBING,
-    }
-    enum Direction {
-        LEFT,
-        RIGHT
+        FALLING,
     }
 
     int frameNum = 0;
     AnimationMode mode = AnimationMode.STANDING;
     Player player;
     double lastAnimationTime = 0;
-    final double animationSpeed = 0.3; //0.07;
+    final double animationSpeed = 0.07;
     Direction direction = Direction.RIGHT;
 
     public PlayerAnimation(Player player) {
@@ -97,6 +99,11 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                     mode = AnimationMode.STANDING;
                     player.endClimbingFromHanging();
                 }
+            } else if (mode == AnimationMode.FALLING) {
+                frameNum++;
+                if (frameNum >= 123) {
+                    frameNum = 119;
+                }
             }
         }
 
@@ -107,18 +114,25 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                 frameNum = 81;
             }
             mode = AnimationMode.JUMPING;
-        } else if (player.wasTouchingGround && mode == AnimationMode.JUMPING) {
+        } else if (player.wasTouchingGround && (mode == AnimationMode.JUMPING || mode == AnimationMode.FALLING)) {
             mode = AnimationMode.STANDING;
         }
 
-        if (player.wasTouchingGround && (mode == AnimationMode.STANDING || mode == AnimationMode.JUMPING || mode == AnimationMode.RUNNING)) {
-            if (Math.abs(velocity.x) < 1.0) {
-                mode = AnimationMode.STANDING;
-            } else {
-                if (mode != AnimationMode.RUNNING) {
-                    frameNum = 12;
+        if (player.wasTouchingGround) {
+            if (mode == AnimationMode.STANDING || mode == AnimationMode.JUMPING || mode == AnimationMode.RUNNING) {
+                if (Math.abs(velocity.x) < 1.0) {
+                    mode = AnimationMode.STANDING;
+                } else {
+                    if (mode != AnimationMode.RUNNING) {
+                        frameNum = 12;
+                    }
+                    mode = AnimationMode.RUNNING;
                 }
-                mode = AnimationMode.RUNNING;
+            }
+        } else {
+            if (velocity.y < -2 && mode != AnimationMode.FALLING) {
+                mode = AnimationMode.FALLING;
+                frameNum = 119;
             }
         }
 

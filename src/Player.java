@@ -70,6 +70,10 @@ public class Player extends PhysicsEntity implements GameConstants {
             if (inputsPressed.get(UserInput.UP)) {
                 animation.initiateClimbUpFromHanging();
             }
+
+            if (animation.direction == Direction.RIGHT) {
+
+            }
         }
 
         this.setVelocity(newVelocity);
@@ -86,7 +90,7 @@ public class Player extends PhysicsEntity implements GameConstants {
                     && isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT / 2)))
                     && !isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT / 2 + 0.1)))) {
                 actionMode = PlayerActionMode.EDGE_HANGING;
-                animation.initiateHanging(PlayerAnimation.Direction.RIGHT);
+                animation.initiateHanging(Direction.RIGHT);
                 setVelocity(new Vector2(0, 0));
                 // relocate to be perfectly far from the edge
                 setPosition(new Vector2(
@@ -117,7 +121,7 @@ public class Player extends PhysicsEntity implements GameConstants {
 
     public void endClimbingFromHanging() {
         actionMode = PlayerActionMode.NORMAL;
-        if (animation.direction == PlayerAnimation.Direction.RIGHT) {
+        if (animation.direction == Direction.RIGHT) {
             // teleport up on edge to the right
             setPosition(new Vector2(
                 Math.floor(getPosition().x + PLAYER_WIDTH / 2 + 0.1) + PLAYER_WIDTH * 0.3,
