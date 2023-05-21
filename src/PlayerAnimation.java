@@ -102,7 +102,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
             } else if (mode == AnimationMode.HANGING_EDGE_CLIMBING) {
                 frameNum++;
                 if (frameNum == 70) {
-                    player.setPosition(player.getPosition().add(new Vector2(0, 0.1 * PLAYER_HEIGHT)));
+                    player.setPosition(player.getPosition().add(new Vector2(0, 0.125 * PLAYER_HEIGHT)));
                 }
                 if (frameNum >= 75) {
                     frameNum = 0;
@@ -111,8 +111,8 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                     if (direction == Direction.RIGHT) {
                         // teleport up on edge to the right
                         player.setPosition(new Vector2(
-                                Math.floor(player.getPosition().x + PLAYER_WIDTH / 2 + 0.1) + PLAYER_WIDTH * 0.3,
-                                Math.floor(player.getPosition().y + PLAYER_HEIGHT / 2 + 0.1) - 1 + PLAYER_HEIGHT / 2
+                                Math.floor(player.getPosition().x + PLAYER_WIDTH * 0.75 + 0.1) + PLAYER_WIDTH * 0.3,
+                                Math.floor(player.getPosition().y + PLAYER_HEIGHT / 2 + 0.2) - 1 + PLAYER_HEIGHT / 2
                         ));
                     }
                 }
@@ -179,7 +179,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
     public void paint(double scrollX, double scrollY) {
         // visually set correct frame by cropping
         final int FRAME_SIZE = 400;
-        final double FRAME_PADDING_PERCENT = 50.0 / 400;
+        final double FRAME_PADDING_RATIO = 50.0 / 400;
         final int SPRITESHEET_FRAMES_WIDE = 24;
         Rectangle cropArea = new Rectangle(FRAME_SIZE, FRAME_SIZE);
         cropArea.setTranslateX(FRAME_SIZE * (frameNum % SPRITESHEET_FRAMES_WIDE)); // X position of the crop area
@@ -196,10 +196,10 @@ public class PlayerAnimation extends ImageView implements GameConstants {
 
         this.setScaleX(direction == Direction.LEFT ? -1 : 1);
 
-        this.setFitWidth(PLAYER_HEIGHT * TILE_SIZE);
-        this.setFitHeight(PLAYER_HEIGHT * TILE_SIZE);
+        this.setFitWidth(PLAYER_HEIGHT * (1 + FRAME_PADDING_RATIO) * TILE_SIZE);
+        this.setFitHeight(PLAYER_HEIGHT * (1 + FRAME_PADDING_RATIO) * TILE_SIZE);
         this.setX((player.getPosition().x - PLAYER_HEIGHT / 2 - scrollX) * TILE_SIZE);
-        this.setY((player.getPosition().y + PLAYER_HEIGHT / 2 - FRAME_PADDING_PERCENT * PLAYER_HEIGHT - scrollY) * TILE_SIZE * -1);
+        this.setY((player.getPosition().y + PLAYER_HEIGHT / 2 - scrollY) * TILE_SIZE * -1);
 
 
     }
