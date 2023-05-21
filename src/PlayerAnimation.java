@@ -18,6 +18,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         EDGE_HANGING,
         HANGING_EDGE_CLIMBING,
         FALLING,
+        HANGING_PRESS_OFF,
     }
 
     int frameNum = 0;
@@ -47,6 +48,11 @@ public class PlayerAnimation extends ImageView implements GameConstants {
 
     public void initiateClimbUpFromHanging() {
         mode = AnimationMode.HANGING_EDGE_CLIMBING;
+    }
+    public void initiateHangingPressOff() {
+        mode = AnimationMode.HANGING_PRESS_OFF;
+        frameNum = 67;
+        lastAnimationTime = 0;
     }
 
     public void move(double timeDeltaSeconds) {
@@ -98,11 +104,31 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                     frameNum = 0;
                     mode = AnimationMode.STANDING;
                     player.endClimbingFromHanging();
+                    if (direction == Direction.RIGHT) {
+                        // teleport up on edge to the right
+                        player.setPosition(new Vector2(
+                                Math.floor(player.getPosition().x + PLAYER_WIDTH / 2 + 0.1) + PLAYER_WIDTH * 0.3,
+                                Math.floor(player.getPosition().y + PLAYER_HEIGHT / 2 + 0.1) - 1 + PLAYER_HEIGHT / 2
+                        ));
+                    }
                 }
             } else if (mode == AnimationMode.FALLING) {
                 frameNum++;
                 if (frameNum >= 123) {
                     frameNum = 119;
+                }
+            } else if (mode == AnimationMode.HANGING_PRESS_OFF) {
+                frameNum--;
+                if (frameNum <= 66) {
+                    mode = AnimationMode.JUMPING;
+                    frameNum = 81;
+                    Vector2 jumpVelocity = new Vector2(4, 4);
+                    player.setVelocity(new Vector2(
+                        jumpVelocity.x * (direction == Direction.RIGHT ? -1 : 1),
+                        jumpVelocity.y
+                    ));
+
+                    player.endClimbingFromHanging();
                 }
             }
         }

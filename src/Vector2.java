@@ -32,6 +32,7 @@ public class Vector2 {
     public Vector2 subtract(Vector2 other) {
         return new Vector2(this.x - other.x, this.y - other.y);
     }
+    public Vector2 scale(double amount) { return new Vector2(this.x * amount, this.y * amount); }
 
     public double dotProduct(Vector2 other) {
         return this.x * other.x + this.y * other.y;

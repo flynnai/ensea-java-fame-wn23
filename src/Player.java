@@ -10,7 +10,8 @@ import java.util.List;
 
 enum PlayerActionMode {
     NORMAL,
-    EDGE_HANGING
+    EDGE_HANGING,
+    EDGE_PRESSING,
 }
 
 public class Player extends PhysicsEntity implements GameConstants {
@@ -26,6 +27,7 @@ public class Player extends PhysicsEntity implements GameConstants {
     int framesUntilCanJump = 0;
     private PlayerAnimation animation;
     public PlayerActionMode actionMode = PlayerActionMode.NORMAL;
+    double timeLeftTillCanHang = 0.0;
 
     public Player(Pane pane, List<List<Tile>> tileMatrix) {
         super(PLAYER_START_POSITION, new Vector2(0, 0), new CollidableRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT), tileMatrix);
@@ -71,8 +73,9 @@ public class Player extends PhysicsEntity implements GameConstants {
                 animation.initiateClimbUpFromHanging();
             }
 
-            if (animation.direction == Direction.RIGHT) {
-
+            if (animation.direction == Direction.RIGHT && inputsPressed.get(UserInput.LEFT)) {
+                animation.initiateHangingPressOff();
+                actionMode = PlayerActionMode.EDGE_PRESSING;
             }
         }
 
@@ -86,7 +89,9 @@ public class Player extends PhysicsEntity implements GameConstants {
                 animation.initiateRolling();
             }
 
+            timeLeftTillCanHang = Math.min(0.0, timeLeftTillCanHang - timeDeltaSeconds);
             if (getVelocity().y < -0.1
+                    && timeLeftTillCanHang <= 0.01
                     && isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT / 2)))
                     && !isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT / 2 + 0.1)))) {
                 actionMode = PlayerActionMode.EDGE_HANGING;
@@ -121,12 +126,6 @@ public class Player extends PhysicsEntity implements GameConstants {
 
     public void endClimbingFromHanging() {
         actionMode = PlayerActionMode.NORMAL;
-        if (animation.direction == Direction.RIGHT) {
-            // teleport up on edge to the right
-            setPosition(new Vector2(
-                Math.floor(getPosition().x + PLAYER_WIDTH / 2 + 0.1) + PLAYER_WIDTH * 0.3,
-                Math.floor(getPosition().y + PLAYER_HEIGHT / 2 + 0.1) - 1 + PLAYER_HEIGHT / 2
-            ));
-        }
+        timeLeftTillCanHang = 1.0;
     }
 }
