@@ -150,11 +150,11 @@ public class PhysicsEntity implements GameConstants {
         }
 
         if (wasTouchingGround) {
-            velocity.x *= 0.95;
+            velocity.x *= GROUND_FRICTION;
         } else {
-            velocity.x *= 0.99;
+            velocity.x *= AIR_FRICTION;
         }
-        velocity.y *= 0.99;
+        velocity.y *= AIR_FRICTION;
 
         //
 //        if (isTouchingTerrain()) {
