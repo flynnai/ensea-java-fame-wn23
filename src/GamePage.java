@@ -35,7 +35,7 @@ public class GamePage implements GameConstants {
 
         // set up tilemap
         tileMap = new TileMap(
-                "./img/sprite_sheets/parisian_tileset_test_2.png",
+                "./img/sprite_sheets/parisian_tileset.png",
                 32,
                 0,
                 "./data/tile_maps/map1.json",
