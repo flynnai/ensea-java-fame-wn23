@@ -206,4 +206,7 @@ public class PhysicsEntity implements GameConstants {
     public final Vector2 getVelocity() {
         return this.velocity;
     }
+    public final CollidableRect getHitBox() {
+        return this.hitBox;
+    }
 }

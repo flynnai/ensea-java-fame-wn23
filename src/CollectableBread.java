@@ -14,7 +14,7 @@ public class CollectableBread extends CollectableEntity {
     static final double FLOAT_SPEED = 2; // seconds per full oscillation
     static final double GLIMMER_REPEAT_NUM_TILES = 5; // tiles after which the glimmer resets
     public CollectableBread(Vector2 position, BreadType type, ImageView imageView) {
-        super(position, 0.3);
+        super(position, new CollidableRect(position.x, position.y, 0.3, 0.3));
         this.imageView = imageView;
     }
 

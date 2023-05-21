@@ -1,14 +1,14 @@
 public abstract class CollectableEntity implements GameConstants {
     protected Vector2 position;
-    protected double collectRadius;
+    protected CollidableShape hitArea;
     public boolean hasBeenCollected = false;
-    public CollectableEntity(Vector2 position, double collectRadius) {
+    public CollectableEntity(Vector2 position, CollidableShape hitArea) {
         this.position = new Vector2(position);
-        this.collectRadius = collectRadius;
+        this.hitArea = hitArea;
     }
 
     public void move(double currentSecondsTime, Player player) {
-        if (player.getPosition().subtract(position).getMagnitude() < collectRadius) {
+        if (player.getHitBox().intersectsWith(hitArea)) {
             getCollected();
         }
     }
