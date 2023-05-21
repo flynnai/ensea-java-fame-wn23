@@ -4,8 +4,10 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
 
 public class GamePage implements GameConstants {
     private Dictionary<UserInput, Boolean> inputsPressed;
@@ -19,6 +21,7 @@ public class GamePage implements GameConstants {
     private TileMap tileMap;
     DevHUD fpsCounter;
     ParallaxBackground parallaxBackground;
+    private List<CollectableEntity> collectableEntities = new ArrayList<>();
     public GamePage() throws Exception {
         // set up root node and create scene with it
         Group root = new Group();
@@ -37,7 +40,8 @@ public class GamePage implements GameConstants {
                 0,
                 "./data/tile_maps/map1.json",
                 pane,
-                new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight())
+                new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()),
+                collectableEntities
         );
 
         // set up player in world
@@ -84,7 +88,8 @@ public class GamePage implements GameConstants {
         camera.move(timeDeltaSeconds);
         // update the FPS counter's frame count
         fpsCounter.move(currentSecondsTime);
-
+        // see if any entities are touching player
+        for (CollectableEntity entity : collectableEntities) entity.move(player);
     }
 
     private void paint() {
@@ -97,6 +102,7 @@ public class GamePage implements GameConstants {
         player.paint(scrollX, scrollY);
         fpsCounter.paint();
 //        parallaxBackground.paint(scrollX, scrollY);
+        for (CollectableEntity entity : collectableEntities) entity.paint(scrollX, scrollY);
     }
 
     public Scene getScene() {

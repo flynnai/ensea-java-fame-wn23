@@ -17,7 +17,7 @@ public class TileMapLayer implements GameConstants {
     private Image spriteSheet;
     private int tilePaddingPx;
 
-    public TileMapLayer(JSONArray tilesJson, int mapWidth, int mapHeight, Rectangle2D viewport, int tilePaddingPx, Image spriteSheet, Pane pane, boolean isCollidable) {
+    public TileMapLayer(JSONArray tilesJson, int mapWidth, int mapHeight, Rectangle2D viewport, int tilePaddingPx, Image spriteSheet, Pane pane, boolean isCollidable, List<CollectableEntity> collectableEntities) {
         List<List<Tile>> tileMatrix = new ArrayList<>();
         // initialize to all `null`'s
         for (int i = 0; i < mapHeight; i++) {
@@ -39,7 +39,28 @@ public class TileMapLayer implements GameConstants {
             int tilesetRow = (int) Math.floor(rawTileNumber / spriteSheetNumTilesWide);
             int tilesetCol = rawTileNumber % spriteSheetNumTilesWide;
 
-            tileMatrix.get(mapRow).set(mapCol, new Tile(tilesetRow, tilesetCol, mapCol + 0.5, -mapRow - 0.5, isCollidable));
+            BreadType breadType = null;
+            if (tilesetRow == 0 && tilesetCol == 10) breadType = BreadType.BATARD;
+            if (tilesetRow == 0 && tilesetCol == 11) breadType = BreadType.BAGUETTE;
+            if (tilesetRow == 1 && tilesetCol == 10) breadType = BreadType.CROISSANT;
+            if (breadType != null) {
+                // make a collectable entity, instead of a tile
+                ImageView imageView = new ImageView(spriteSheet);
+                imageView.setFitWidth(TILE_SIZE + 1);
+                imageView.setFitHeight(TILE_SIZE + 1);
+                imageView.setViewport(new Rectangle2D(
+                        tilesetCol * (TILE_SIZE + this.tilePaddingPx),
+                        tilesetRow * (TILE_SIZE + this.tilePaddingPx),
+                        TILE_SIZE,
+                        TILE_SIZE
+                ));
+                pane.getChildren().add(imageView);
+
+                collectableEntities.add(new CollectableBread(new Vector2(mapCol + 0.5, -mapRow - 0.5), breadType, imageView));
+            } else {
+                // add a new tile to the tilemap
+                tileMatrix.get(mapRow).set(mapCol, new Tile(tilesetRow, tilesetCol, mapCol + 0.5, -mapRow - 0.5, isCollidable));
+            }
         }
 
         this.tileMatrix = tileMatrix;

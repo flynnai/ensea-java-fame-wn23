@@ -17,8 +17,7 @@ import java.util.List;
 public class TileMap implements GameConstants {
     private List<TileMapLayer> layers;
 
-    public TileMap(String spriteSheetPath, int tileSizePx, int tilePaddingPx, String tileMapPath, Pane pane, Rectangle2D gameViewport) throws FileNotFoundException {
-        // TODO we can use embedded JSON base64 spritesheet instead
+    public TileMap(String spriteSheetPath, int tileSizePx, int tilePaddingPx, String tileMapPath, Pane pane, Rectangle2D gameViewport, List<CollectableEntity> collectableEntities) throws FileNotFoundException {
         // get a demo version of the file to see its dimensions, then scale
         Image demoImage = new Image("file:" + spriteSheetPath);
         float scaleFactor = (float) TILE_SIZE / (tileSizePx + tilePaddingPx);
@@ -52,7 +51,8 @@ public class TileMap implements GameConstants {
                     spriteSheet,
                     pane,
                     // only have physics for layer number 1
-                    layerNum == COLLIDABLE_LAYER_NUMBER
+                    layerNum == COLLIDABLE_LAYER_NUMBER,
+                    collectableEntities
             );
             this.layers.add(layer);
         }

@@ -8,7 +8,7 @@ public interface GameConstants {
     public static final float PLAYER_AIR_MOVE_FORCE = 5;
     public static final Vector2 PLAYER_START_POSITION = new Vector2(15, 2);
     // the bottom of the map, where the player will fall and die
-    public static final int WORLD_BOTTOM = -30;
+    public static final int WORLD_BOTTOM = -17;
     // parallax background speed
     public static final double BACKGROUND_SPEED = 30;
     public static final double PLAYER_JUMP_VELOCITY = 7;
