@@ -62,6 +62,38 @@ public class Player extends PhysicsEntity implements GameConstants {
         }
     }
 
+    private void checkForWallRun(Direction direction, Vector2 newVelocity) {
+        Vector2 checkPoint = new Vector2(
+                (PLAYER_WIDTH / 2 + 0.1) * (direction == Direction.RIGHT ? 1 : -1),
+                -PLAYER_HEIGHT / 2
+        );
+
+        if (isPointTouchingTerrain(getPosition().add(checkPoint))
+                && getVelocity().getMagnitude() > PLAYER_MAX_SPEED * 0.5
+                && getVelocity().y > PLAYER_MAX_SPEED * 0.2) {
+            actionMode = PlayerActionMode.WALL_RUNNING;
+            animation.initiateWallRunning(direction);
+            // redirect force upwards
+            newVelocity.y = newVelocity.getMagnitude() * WALL_RUN_BOOSTER;
+            newVelocity.x = 0;
+
+            // move perfectly far from edge
+            Vector2 newPosition = getPosition();
+            if (direction == Direction.RIGHT) {
+                // align hitbox to right side
+                newPosition.x = Math.floor(newPosition.add(checkPoint).x) - PLAYER_WIDTH / 2;
+                // move left a bit
+                newPosition.x -= PLAYER_WIDTH * 0.15;
+            } else {
+                // align hitbox to left side
+                newPosition.x = Math.ceil(newPosition.add(checkPoint).x) + PLAYER_WIDTH / 2;
+                // move right a bit
+                newPosition.x += PLAYER_WIDTH * 0.15;
+            }
+            setPosition(newPosition);
+        }
+    }
+
     public void move(Dictionary<UserInput, Boolean> inputsPressed, double timeDeltaSeconds) {
         Vector2 newVelocity = new Vector2(this.getVelocity());
 
@@ -89,6 +121,8 @@ public class Player extends PhysicsEntity implements GameConstants {
                         newVelocity.x *= RUNNING_FRICTION;
                     }
                 }
+
+                checkForWallRun(Direction.LEFT, newVelocity);
             } else if (inputsPressed.get(UserInput.RIGHT)) {
                 if (this.getVelocity().x < PLAYER_MAX_SPEED) {
                     newVelocity.x += (wasTouchingGround ? PLAYER_GROUND_MOVE_FORCE : PLAYER_AIR_MOVE_FORCE) * timeDeltaSeconds;
@@ -99,22 +133,7 @@ public class Player extends PhysicsEntity implements GameConstants {
                     }
                 }
 
-                if (isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2 + 0.1, -PLAYER_HEIGHT / 2)))
-                    && newVelocity.getMagnitude() > PLAYER_MAX_SPEED * 0.5
-                    && newVelocity.y > PLAYER_MAX_SPEED * 0.2) {
-                    actionMode = PlayerActionMode.WALL_RUNNING;
-                    animation.initiateWallRunning(Direction.RIGHT);
-                    // redirect force upwards
-                    newVelocity.y = newVelocity.getMagnitude() * WALL_RUN_BOOSTER;
-                    newVelocity.x = 0;
-                    // move perfectly far from edge
-                    Vector2 newPosition = getPosition();
-                    // align hitbox to right side
-                    newPosition.x = Math.floor(newPosition.x + PLAYER_WIDTH / 2 + 0.1) - PLAYER_WIDTH / 2;
-                    // move left a bit
-                    newPosition.x -= PLAYER_WIDTH * 0.15;
-                    setPosition(newPosition);
-                }
+                checkForWallRun(Direction.RIGHT, newVelocity);
             }
 
             newVelocity.y -= GRAVITY * timeDeltaSeconds;
@@ -142,7 +161,9 @@ public class Player extends PhysicsEntity implements GameConstants {
             if (newVelocity.y < 0) {
                 actionMode = PlayerActionMode.NORMAL;
                 animation.endWallRunning();
-                setPosition(getPosition().add(new Vector2(PLAYER_WIDTH * 0.15, 0)));
+                setPosition(getPosition().add(
+                        new Vector2(PLAYER_WIDTH * 0.15 * (animation.direction == Direction.RIGHT ? 1 : -1), 0)
+                ));
                 checkForEdgeHang();
             }
         }
