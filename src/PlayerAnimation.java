@@ -209,6 +209,12 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                 lastAnimationTime = velocity.y / (PLAYER_MAX_SPEED * WALL_RUN_BOOSTER) * (2 * animationSpeed) - 2 * animationSpeed;
                 lastAnimationTime = Math.min(0, lastAnimationTime);
 
+            } else if (mode == AnimationMode.SLIDING) {
+                frameNum++;
+                if (frameNum >= 143) {
+                    mode = AnimationMode.STANDING;
+                    frameNum = 0;
+                }
             }
         }
 

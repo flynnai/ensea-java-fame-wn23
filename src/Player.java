@@ -117,8 +117,10 @@ public class Player extends PhysicsEntity implements GameConstants {
                 }
             }
 
-            if (inputsPressed.get(UserInput.DOWN)) {
-                // for later
+            if (wasTouchingGround && Math.abs(getVelocity().x) > 0.5 * PLAYER_MAX_SPEED && inputsPressed.get(UserInput.DOWN)) {
+                if (animation.mode != PlayerAnimation.AnimationMode.SLIDING) {
+                    animation.initiateSliding();
+                }
             }
             if (inputsPressed.get(UserInput.LEFT)) {
                 if (this.getVelocity().x > -PLAYER_MAX_SPEED) {
