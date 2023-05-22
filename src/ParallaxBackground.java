@@ -13,7 +13,8 @@ public class ParallaxBackground {
         layers.add(new ParallaxBackgroundLayer("./img/parallax/parallax2.png", 0.4, parentPane));
         layers.add(new ParallaxBackgroundLayer("./img/parallax/parallax3.png", 0.2, parentPane));
         layers.add(new ParallaxBackgroundLayer("./img/parallax/parallax4.png", 0.1, parentPane));
-        layers.add(new ParallaxBackgroundLayer("./img/parallax/parallax5.png", 0.0, parentPane));
+        layers.add(new ParallaxBackgroundLayer("./img/parallax/parallax5.png", 0.05, parentPane));
+        layers.add(new ParallaxBackgroundLayer("./img/parallax/parallax6.png", 0.0, parentPane));
     }
     public void paint(double scrollX, double scrollY) {
         for (ParallaxBackgroundLayer layer : layers) {
