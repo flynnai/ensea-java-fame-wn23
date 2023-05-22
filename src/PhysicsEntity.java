@@ -122,6 +122,8 @@ public class PhysicsEntity implements GameConstants {
                 // ASSUMES tile, doesn't work for complex shapes
                 position.y = Math.floor(position.y) + hitBox.height / 2 + floatAmount;
                 wasTouchingGround = true;
+            } else {
+                System.out.println("I don't think this should happen, since it should be some side that's hitting");
             }
             velocity.y = 0;
         }
@@ -143,13 +145,15 @@ public class PhysicsEntity implements GameConstants {
         if (isTouchingTerrain() && !wasTouchingSlope) {
             // find out which side
             if (isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y - hitBox.height / 2))
+                    || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y))
                     || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y + hitBox.height / 2))) {
-                // correct down
+                // hitting right side, correct left
                 // ASSUMES tile, doesn't work for complex shapes
                 position.x = Math.ceil(position.x) - hitBox.width / 2 - floatAmount;
             } else if (isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y - hitBox.height / 2))
+                    || isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y))
                     || isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y + hitBox.height / 2))) {
-                // correct up
+                // hitting left side, correct right
                 // ASSUMES tile, doesn't work for complex shapes
                 position.x = Math.floor(position.x) + hitBox.width / 2 + floatAmount;
             }

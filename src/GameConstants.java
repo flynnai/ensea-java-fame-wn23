@@ -15,7 +15,7 @@ public interface GameConstants {
     public static final double BACKGROUND_SPEED = 30;
     public static final double PLAYER_JUMP_VELOCITY = 7;
     public static final int COLLIDABLE_LAYER_NUMBER = 1;
-    public static final int FOREGROUND_LAYER_NUMBER = 2;
+    public static final int FOREGROUND_LAYER_NUMBER = 3;
     public final float PLAYER_WIDTH = 0.62f;
     public final float PLAYER_HEIGHT = 1.4f;
 }

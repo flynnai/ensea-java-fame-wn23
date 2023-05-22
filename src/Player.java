@@ -98,18 +98,19 @@ public class Player extends PhysicsEntity implements GameConstants {
             }
 
             timeLeftTillCanHang = Math.max(0.0, timeLeftTillCanHang - timeDeltaSeconds);
-            Vector2 sensorOffset = new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT * 0.4);
             if (getVelocity().y < -0.1 && timeLeftTillCanHang <= 0.01) {
+                Vector2 sensorOffset = new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT * 0.4);
+                double jumpHandle = 0.2; // amount of space to check "touching below, not touching above" for
                 boolean isTouchingRight = isPointTouchingTerrain(getPosition().add(sensorOffset))
-                        && !isPointTouchingTerrain(getPosition().add(sensorOffset.add(new Vector2(0, 0.1))));
+                        && !isPointTouchingTerrain(getPosition().add(sensorOffset.add(new Vector2(0, jumpHandle))));
                 boolean isTouchingLeft = isPointTouchingTerrain(getPosition().add(sensorOffset.flipX()))
-                        && !isPointTouchingTerrain(getPosition().add(sensorOffset.flipX().add(new Vector2(0, 0.1))));
+                        && !isPointTouchingTerrain(getPosition().add(sensorOffset.flipX().add(new Vector2(0, jumpHandle))));
                 if (isTouchingLeft || isTouchingRight) {
                     actionMode = PlayerActionMode.EDGE_HANGING;
                     animation.initiateHanging(isTouchingRight ? Direction.RIGHT : Direction.LEFT);
                     setVelocity(new Vector2(0, 0));
                     // relocate to be perfectly far from the edge
-                    Vector2 newPosition = new Vector2(0, Math.floor(getPosition().y + PLAYER_HEIGHT / 2 + 0.1) - PLAYER_HEIGHT * 0.1);
+                    Vector2 newPosition = new Vector2(0, Math.floor(getPosition().y + PLAYER_HEIGHT / 2 + jumpHandle) - PLAYER_HEIGHT * 0.1);
                     if (isTouchingRight) {
                         newPosition.x = Math.floor(getPosition().x + PLAYER_WIDTH / 2 + 0.1) - PLAYER_WIDTH * 0.7;
                     } else {
