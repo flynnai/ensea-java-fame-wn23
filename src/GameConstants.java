@@ -22,4 +22,5 @@ public interface GameConstants {
     public final float PLAYER_HEIGHT = 1.4f;
     public static final double GRAVITY = 9.81;
     public static final double WALL_RUN_BOOSTER = 1.1;
+    public static final double REPEAT_WALL_JUMP_THRESHOLD = 1.0; // seconds
 }

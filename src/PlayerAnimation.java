@@ -237,10 +237,13 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         }
 
 
-        if (velocity.x > 0.1) {
-            direction = Direction.RIGHT;
-        } else if (velocity.x < -0.1) {
-            direction = Direction.LEFT;
+        if (mode != AnimationMode.HANGING_PRESS_OFF) {
+            // don't update direction for hanging press off, or we face the wrong direction as we jump
+            if (velocity.x > 0.1) {
+                direction = Direction.RIGHT;
+            } else if (velocity.x < -0.1) {
+                direction = Direction.LEFT;
+            }
         }
     }
 

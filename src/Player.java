@@ -29,6 +29,8 @@ public class Player extends PhysicsEntity implements GameConstants {
     private PlayerAnimation animation;
     public PlayerActionMode actionMode = PlayerActionMode.NORMAL;
     double timeLeftTillCanHang = 0.0;
+    private double lastWallJumpedTime = 0;
+    private Direction lastWallJumpedDirection = null;
 
     public Player(Pane pane, List<List<Tile>> tileMatrix) {
         super(PLAYER_START_POSITION, new Vector2(0, 0), new CollidableRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT), tileMatrix);
@@ -69,12 +71,14 @@ public class Player extends PhysicsEntity implements GameConstants {
         ));
     }
 
-    private void checkForWallRun(Direction direction, Vector2 newVelocity) {
+    private void checkForWallRun(Direction direction, Vector2 newVelocity, boolean hasJumpedRecently) {
         Vector2 checkPoint = getWallRunCheckPoint(direction);
+        boolean playerIsMovingUpFast = getVelocity().getMagnitude() > PLAYER_MAX_SPEED * 0.5
+                && getVelocity().y > PLAYER_MAX_SPEED * 0.2;
 
-        if (isPointTouchingTerrain(checkPoint)
-                && getVelocity().getMagnitude() > PLAYER_MAX_SPEED * 0.5
-                && getVelocity().y > PLAYER_MAX_SPEED * 0.2) {
+        if (isPointTouchingTerrain(checkPoint) && (playerIsMovingUpFast
+                || (hasJumpedRecently && lastWallJumpedDirection != direction && getVelocity().y > 0)
+        )) {
             actionMode = PlayerActionMode.WALL_RUNNING;
             animation.initiateWallRunning(direction);
             // redirect force upwards
@@ -98,7 +102,7 @@ public class Player extends PhysicsEntity implements GameConstants {
         }
     }
 
-    public void move(Dictionary<UserInput, Boolean> inputsPressed, double timeDeltaSeconds) {
+    public void move(Dictionary<UserInput, Boolean> inputsPressed, double currentSecondsTime, double timeDeltaSeconds) {
         Vector2 newVelocity = new Vector2(this.getVelocity());
 
         if (actionMode == PlayerActionMode.NORMAL) {
@@ -126,7 +130,7 @@ public class Player extends PhysicsEntity implements GameConstants {
                     }
                 }
 
-                checkForWallRun(Direction.LEFT, newVelocity);
+                checkForWallRun(Direction.LEFT, newVelocity, (currentSecondsTime - lastWallJumpedTime) < REPEAT_WALL_JUMP_THRESHOLD);
             } else if (inputsPressed.get(UserInput.RIGHT)) {
                 if (this.getVelocity().x < PLAYER_MAX_SPEED) {
                     newVelocity.x += (wasTouchingGround ? PLAYER_GROUND_MOVE_FORCE : PLAYER_AIR_MOVE_FORCE) * timeDeltaSeconds;
@@ -137,7 +141,7 @@ public class Player extends PhysicsEntity implements GameConstants {
                     }
                 }
 
-                checkForWallRun(Direction.RIGHT, newVelocity);
+                checkForWallRun(Direction.RIGHT, newVelocity, (currentSecondsTime - lastWallJumpedTime) < REPEAT_WALL_JUMP_THRESHOLD);
             }
 
             newVelocity.y -= GRAVITY * timeDeltaSeconds;
@@ -170,6 +174,16 @@ public class Player extends PhysicsEntity implements GameConstants {
                         new Vector2(PLAYER_WIDTH * 0.15 * (dir == Direction.RIGHT ? 1 : -1), 0)
                 ));
                 checkForEdgeHang();
+            } else if (dir == Direction.RIGHT && inputsPressed.get(UserInput.LEFT)
+                    || dir == Direction.LEFT && inputsPressed.get(UserInput.RIGHT)) {
+                // end wall running and push off to opposite side
+                actionMode = PlayerActionMode.NORMAL;
+                animation.initiateHangingPressOff();
+
+                newVelocity.x = PLAYER_JUMP_VELOCITY * 0.5 * (dir == Direction.RIGHT ? 1 : -1);
+                newVelocity.y *= 0.3;
+                lastWallJumpedTime = currentSecondsTime;
+                lastWallJumpedDirection = dir;
             }
         }
 

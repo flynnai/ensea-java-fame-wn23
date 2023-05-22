@@ -86,7 +86,7 @@ public class GamePage implements GameConstants {
     private void move(double currentSecondsTime, double timeDeltaSeconds) {
         // MOVE all entities, and the camera
         // apply physics to bodies
-        player.move(inputsPressed, timeDeltaSeconds);
+        player.move(inputsPressed, currentSecondsTime, timeDeltaSeconds);
         // move the camera according to new positions
         camera.move(timeDeltaSeconds);
         // update the FPS counter's frame count
