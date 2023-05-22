@@ -62,13 +62,17 @@ public class Player extends PhysicsEntity implements GameConstants {
         }
     }
 
-    private void checkForWallRun(Direction direction, Vector2 newVelocity) {
-        Vector2 checkPoint = new Vector2(
+    private Vector2 getWallRunCheckPoint(Direction direction) {
+        return getPosition().add(new Vector2(
                 (PLAYER_WIDTH / 2 + 0.1) * (direction == Direction.RIGHT ? 1 : -1),
                 -PLAYER_HEIGHT / 2
-        );
+        ));
+    }
 
-        if (isPointTouchingTerrain(getPosition().add(checkPoint))
+    private void checkForWallRun(Direction direction, Vector2 newVelocity) {
+        Vector2 checkPoint = getWallRunCheckPoint(direction);
+
+        if (isPointTouchingTerrain(checkPoint)
                 && getVelocity().getMagnitude() > PLAYER_MAX_SPEED * 0.5
                 && getVelocity().y > PLAYER_MAX_SPEED * 0.2) {
             actionMode = PlayerActionMode.WALL_RUNNING;
@@ -81,12 +85,12 @@ public class Player extends PhysicsEntity implements GameConstants {
             Vector2 newPosition = getPosition();
             if (direction == Direction.RIGHT) {
                 // align hitbox to right side
-                newPosition.x = Math.floor(newPosition.add(checkPoint).x) - PLAYER_WIDTH / 2;
+                newPosition.x = Math.floor(checkPoint.x) - PLAYER_WIDTH / 2;
                 // move left a bit
                 newPosition.x -= PLAYER_WIDTH * 0.15;
             } else {
                 // align hitbox to left side
-                newPosition.x = Math.ceil(newPosition.add(checkPoint).x) + PLAYER_WIDTH / 2;
+                newPosition.x = Math.ceil(checkPoint.x) + PLAYER_WIDTH / 2;
                 // move right a bit
                 newPosition.x += PLAYER_WIDTH * 0.15;
             }
@@ -158,11 +162,12 @@ public class Player extends PhysicsEntity implements GameConstants {
             }
         } else if (actionMode == PlayerActionMode.WALL_RUNNING) {
             newVelocity.y -= GRAVITY * timeDeltaSeconds;
-            if (newVelocity.y < 0) {
+            Direction dir = animation.direction;
+            if (newVelocity.y < 0 || !isPointTouchingTerrain(getWallRunCheckPoint(dir))) {
                 actionMode = PlayerActionMode.NORMAL;
                 animation.endWallRunning();
                 setPosition(getPosition().add(
-                        new Vector2(PLAYER_WIDTH * 0.15 * (animation.direction == Direction.RIGHT ? 1 : -1), 0)
+                        new Vector2(PLAYER_WIDTH * 0.15 * (dir == Direction.RIGHT ? 1 : -1), 0)
                 ));
                 checkForEdgeHang();
             }
