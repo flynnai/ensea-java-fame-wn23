@@ -22,6 +22,8 @@ public class GamePage implements GameConstants {
     DevHUD fpsCounter;
     ParallaxBackground parallaxBackground;
     private List<CollectableEntity> collectableEntities = new ArrayList<>();
+    private List<BenignEntity> benignEntities = new ArrayList<>();
+
     public GamePage() throws Exception {
         // set up root node and create scene with it
         Group root = new Group();
@@ -66,6 +68,12 @@ public class GamePage implements GameConstants {
         // set up sound mixer singleton instance so sounds are pre-loaded
         SoundMixer.initialize();
 
+        // set up benign entities that populate our stage
+        benignEntities = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            benignEntities.add(new Bird(new Vector2(20, -8), player, pane));
+        }
+
         gameLoop = new AnimationTimer() {
             public void handle(long currentNanoTime) {
                 // find amount of time passed since last loop run
@@ -93,6 +101,8 @@ public class GamePage implements GameConstants {
         fpsCounter.move(currentSecondsTime);
         // see if any entities are touching player
         for (CollectableEntity entity : collectableEntities) entity.move(currentSecondsTime, player);
+        // move our benign entities around
+        for (BenignEntity entity : benignEntities) entity.move(timeDeltaSeconds);
     }
 
     private void paint() {
@@ -106,6 +116,7 @@ public class GamePage implements GameConstants {
         fpsCounter.paint();
         parallaxBackground.paint(scrollX, scrollY);
         for (CollectableEntity entity : collectableEntities) entity.paint(scrollX, scrollY);
+        for (BenignEntity entity : benignEntities) entity.paint(scrollX, scrollY);
     }
 
     public Scene getScene() {

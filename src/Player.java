@@ -37,7 +37,7 @@ public class Player extends PhysicsEntity implements GameConstants {
 
         // set up player JavaFX element
         playerDisplayRect = new Rectangle(PLAYER_WIDTH * TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE);
-        pane.getChildren().add(playerDisplayRect);
+//        pane.getChildren().add(playerDisplayRect);
         animation = new PlayerAnimation(this);
         pane.getChildren().add(animation);
     }
