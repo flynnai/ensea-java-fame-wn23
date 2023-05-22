@@ -22,6 +22,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         FALLING,
         HANGING_PRESS_OFF,
         WALL_RUNNING,
+        SLIDING,
     }
 
     int frameNum = 0;
@@ -86,6 +87,12 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         lastAnimationTime = 0;
     }
 
+    public void initiateSliding() {
+        // sliding is frames 137 - 142
+        mode = AnimationMode.SLIDING;
+        frameNum = 137;
+    }
+
     public void move(double timeDeltaSeconds) {
         Vector2 velocity = player.getVelocity();
 
@@ -133,7 +140,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                 double magnitude = velocity.getMagnitude() * 0.4 + PLAYER_JUMP_VELOCITY * 0.7;
 
                 velocity = new Vector2(velocity.x * 0.2 + Math.cos(jumpAngleRad) * magnitude,
-                        Math.sin(jumpAngleRad) * magnitude
+                        magnitude * 0.2 + Math.sin(jumpAngleRad) * magnitude
                 );
                 player.setVelocity(velocity);
                 mode = AnimationMode.JUMPING;
