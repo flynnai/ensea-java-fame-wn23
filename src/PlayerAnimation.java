@@ -21,6 +21,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         HANGING_EDGE_CLIMBING,
         FALLING,
         HANGING_PRESS_OFF,
+        WALL_RUNNING,
     }
 
     int frameNum = 0;
@@ -40,6 +41,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         frameNum = 81;
         lastAnimationTime = 0;
     }
+
     public void initiateRolling() {
         // rolling is frames 35-40
         mode = AnimationMode.ROLLING;
@@ -58,14 +60,30 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         mode = AnimationMode.HANGING_EDGE_CLIMBING;
         SoundMixer.playSound("climb_up.wav");
     }
+
     public void initiateHangingPressOff() {
         mode = AnimationMode.HANGING_PRESS_OFF;
         frameNum = 67;
         lastAnimationTime = 0;
     }
+
     public void initiateFallFromHanging() {
+        mode = AnimationMode.JUMPING;
+        frameNum = 88;
+    }
+
+    public void initiateWallRunning(Direction direction) {
+        this.direction = direction;
+        mode = AnimationMode.WALL_RUNNING;
+        // wall running is frames 49-56
+        frameNum = 49;
+        lastAnimationTime = 0;
+    }
+
+    public void endWallRunning() {
         mode = AnimationMode.FALLING;
         frameNum = 119;
+        lastAnimationTime = 0;
     }
 
     public void move(double timeDeltaSeconds) {
@@ -106,7 +124,17 @@ public class PlayerAnimation extends ImageView implements GameConstants {
             } else if (mode == AnimationMode.PRE_JUMPING) {
                 frameNum++;
                 // actually jump
-                velocity = velocity.add(new Vector2(0, PLAYER_JUMP_VELOCITY));
+                velocity.y += PLAYER_JUMP_VELOCITY;
+
+                double jumpAngleRad = Math.atan2(velocity.y, velocity.x);
+                double magnitude = (PLAYER_JUMP_VELOCITY + velocity.getMagnitude()) / 2;
+
+//                final double JUMP_ANGLE = 60;
+//                double jumpAngleRad = JUMP_ANGLE * Math.PI / 180;
+                velocity = new Vector2(Math.cos(jumpAngleRad) * magnitude,
+                        Math.sin(jumpAngleRad) * magnitude
+                );
+//                velocity = velocity.add(new Vector2(0, PLAYER_JUMP_VELOCITY));
                 player.setVelocity(velocity);
                 mode = AnimationMode.JUMPING;
                 SoundMixer.playSound("jump.wav");
@@ -148,6 +176,8 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                 if (frameNum >= 123) {
                     frameNum = 119;
                 }
+                // slower animation
+                lastAnimationTime = -2 * animationSpeed;
             } else if (mode == AnimationMode.HANGING_PRESS_OFF) {
                 frameNum--;
                 if (frameNum <= 66) {
@@ -155,16 +185,25 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                     frameNum = 81;
                     Vector2 jumpVelocity = new Vector2(4, 4);
                     player.setVelocity(new Vector2(
-                        jumpVelocity.x * (direction == Direction.RIGHT ? -1 : 1),
-                        jumpVelocity.y
+                            jumpVelocity.x * (direction == Direction.RIGHT ? -1 : 1),
+                            jumpVelocity.y
                     ));
 
                     player.endHanging();
                 }
+            } else if (mode == AnimationMode.WALL_RUNNING) {
+                frameNum++;
+                if (frameNum >= 56) {
+                    frameNum = 49;
+                }
+
+                // range of [-3 * animationSpeed, 0] for wall running
+                // should be slowest at y-velocity is 0, fastest at y-velocity is player max speed * WALL_RUN_BOOSTER
+                lastAnimationTime = velocity.y / (PLAYER_MAX_SPEED * WALL_RUN_BOOSTER) * (2 * animationSpeed) - 2 * animationSpeed;
+                lastAnimationTime = Math.min(0, lastAnimationTime);
+
             }
         }
-
-
 
 
         if (player.wasTouchingGround && velocity.y < 0.1) {
@@ -174,25 +213,33 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                     SoundMixer.playSound("land_on_ground.wav");
                 }
                 if (Math.abs(velocity.x) < 1.0) {
+                    if (mode != AnimationMode.STANDING) {
+                        frameNum = 0;
+                        // change to this frame instantly
+                        lastAnimationTime = animationSpeed;
+                    }
                     mode = AnimationMode.STANDING;
                 } else {
                     if (mode != AnimationMode.RUNNING) {
                         frameNum = 12;
+                        // change to this frame instantly
+                        lastAnimationTime = animationSpeed;
                     }
                     mode = AnimationMode.RUNNING;
                 }
             }
         } else {
-            if (velocity.y < -2 && mode != AnimationMode.FALLING) {
+            if (velocity.y < -1 && mode != AnimationMode.FALLING) {
                 mode = AnimationMode.FALLING;
                 frameNum = 119;
+                lastAnimationTime = -2 * animationSpeed;
             }
         }
 
 
         if (velocity.x > 0.1) {
             direction = Direction.RIGHT;
-        } else if (velocity.x < -0.1){
+        } else if (velocity.x < -0.1) {
             direction = Direction.LEFT;
         }
     }

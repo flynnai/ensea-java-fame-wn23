@@ -12,6 +12,7 @@ enum PlayerActionMode {
     NORMAL,
     EDGE_HANGING,
     EDGE_PRESSING,
+    WALL_RUNNING,
 }
 
 public class Player extends PhysicsEntity implements GameConstants {
@@ -39,6 +40,28 @@ public class Player extends PhysicsEntity implements GameConstants {
         pane.getChildren().add(animation);
     }
 
+    private void checkForEdgeHang() {
+        Vector2 sensorOffset = new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT * 0.4);
+        double jumpHandle = 0.2; // amount of space to check "touching below, not touching above" for
+        boolean isTouchingRight = isPointTouchingTerrain(getPosition().add(sensorOffset))
+                && !isPointTouchingTerrain(getPosition().add(sensorOffset.add(new Vector2(0, jumpHandle))));
+        boolean isTouchingLeft = isPointTouchingTerrain(getPosition().add(sensorOffset.flipX()))
+                && !isPointTouchingTerrain(getPosition().add(sensorOffset.flipX().add(new Vector2(0, jumpHandle))));
+        if (isTouchingLeft || isTouchingRight) {
+            actionMode = PlayerActionMode.EDGE_HANGING;
+            animation.initiateHanging(isTouchingRight ? Direction.RIGHT : Direction.LEFT);
+            setVelocity(new Vector2(0, 0));
+            // relocate to be perfectly far from the edge
+            Vector2 newPosition = new Vector2(0, Math.floor(getPosition().y + PLAYER_HEIGHT / 2 + jumpHandle) - PLAYER_HEIGHT * 0.1);
+            if (isTouchingRight) {
+                newPosition.x = Math.floor(getPosition().x + PLAYER_WIDTH / 2 + 0.1) - PLAYER_WIDTH * 0.7;
+            } else {
+                newPosition.x = Math.ceil(getPosition().x - PLAYER_WIDTH / 2 - 0.1) + PLAYER_WIDTH * 0.69;
+            }
+            setPosition(newPosition);
+        }
+    }
+
     public void move(Dictionary<UserInput, Boolean> inputsPressed, double timeDeltaSeconds) {
         Vector2 newVelocity = new Vector2(this.getVelocity());
 
@@ -60,14 +83,34 @@ public class Player extends PhysicsEntity implements GameConstants {
             if (inputsPressed.get(UserInput.LEFT)) {
                 if (this.getVelocity().x > -PLAYER_MAX_SPEED) {
                     newVelocity.x += (wasTouchingGround ? -PLAYER_GROUND_MOVE_FORCE : -PLAYER_AIR_MOVE_FORCE) * timeDeltaSeconds;
+                    if (wasTouchingGround) {
+                        // friction interferes with movement, undo it
+                        newVelocity.x /= GROUND_FRICTION;
+                        newVelocity.x *= RUNNING_FRICTION;
+                    }
                 }
             } else if (inputsPressed.get(UserInput.RIGHT)) {
                 if (this.getVelocity().x < PLAYER_MAX_SPEED) {
                     newVelocity.x += (wasTouchingGround ? PLAYER_GROUND_MOVE_FORCE : PLAYER_AIR_MOVE_FORCE) * timeDeltaSeconds;
+                    if (wasTouchingGround) {
+                        // friction interferes with movement, undo it
+                        newVelocity.x /= GROUND_FRICTION;
+                        newVelocity.x *= RUNNING_FRICTION;
+                    }
+                }
+
+                if (isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2 + 0.1, -PLAYER_HEIGHT / 2)))
+                    && newVelocity.getMagnitude() > PLAYER_MAX_SPEED * 0.5
+                    && newVelocity.y > PLAYER_MAX_SPEED * 0.2) {
+                    actionMode = PlayerActionMode.WALL_RUNNING;
+                    animation.initiateWallRunning(Direction.RIGHT);
+                    // redirect force upwards
+                    newVelocity.y = newVelocity.getMagnitude() * WALL_RUN_BOOSTER;
+                    newVelocity.x = 0;
                 }
             }
 
-            newVelocity.y -= 9.81 * timeDeltaSeconds;
+            newVelocity.y -= GRAVITY * timeDeltaSeconds;
 
         } else if (actionMode == PlayerActionMode.EDGE_HANGING) {
             if (inputsPressed.get(UserInput.UP)) {
@@ -87,6 +130,13 @@ public class Player extends PhysicsEntity implements GameConstants {
                 setPosition(getPosition().add(new Vector2(0, -0.15 * PLAYER_HEIGHT)));
                 endHanging();
             }
+        } else if (actionMode == PlayerActionMode.WALL_RUNNING) {
+            newVelocity.y -= GRAVITY * timeDeltaSeconds;
+            if (newVelocity.y < 0) {
+                actionMode = PlayerActionMode.NORMAL;
+                animation.endWallRunning();
+                checkForEdgeHang();
+            }
         }
 
         this.setVelocity(newVelocity);
@@ -101,25 +151,7 @@ public class Player extends PhysicsEntity implements GameConstants {
 
             timeLeftTillCanHang = Math.max(0.0, timeLeftTillCanHang - timeDeltaSeconds);
             if (getVelocity().y < -0.1 && timeLeftTillCanHang <= 0.01) {
-                Vector2 sensorOffset = new Vector2(PLAYER_WIDTH / 2 + 0.1, PLAYER_HEIGHT * 0.4);
-                double jumpHandle = 0.2; // amount of space to check "touching below, not touching above" for
-                boolean isTouchingRight = isPointTouchingTerrain(getPosition().add(sensorOffset))
-                        && !isPointTouchingTerrain(getPosition().add(sensorOffset.add(new Vector2(0, jumpHandle))));
-                boolean isTouchingLeft = isPointTouchingTerrain(getPosition().add(sensorOffset.flipX()))
-                        && !isPointTouchingTerrain(getPosition().add(sensorOffset.flipX().add(new Vector2(0, jumpHandle))));
-                if (isTouchingLeft || isTouchingRight) {
-                    actionMode = PlayerActionMode.EDGE_HANGING;
-                    animation.initiateHanging(isTouchingRight ? Direction.RIGHT : Direction.LEFT);
-                    setVelocity(new Vector2(0, 0));
-                    // relocate to be perfectly far from the edge
-                    Vector2 newPosition = new Vector2(0, Math.floor(getPosition().y + PLAYER_HEIGHT / 2 + jumpHandle) - PLAYER_HEIGHT * 0.1);
-                    if (isTouchingRight) {
-                        newPosition.x = Math.floor(getPosition().x + PLAYER_WIDTH / 2 + 0.1) - PLAYER_WIDTH * 0.7;
-                    } else {
-                        newPosition.x = Math.ceil(getPosition().x - PLAYER_WIDTH / 2 - 0.1) + PLAYER_WIDTH * 0.69;
-                    }
-                    setPosition(newPosition);
-                }
+                checkForEdgeHang();
             }
         } else if (actionMode == PlayerActionMode.EDGE_HANGING) {
 
@@ -136,8 +168,8 @@ public class Player extends PhysicsEntity implements GameConstants {
     }
 
     public void paint(double scrollX, double scrollY) {
-//        playerDisplayRect.setX((this.getPosition().x - PLAYER_WIDTH / 2 - scrollX) * TILE_SIZE);
-//        playerDisplayRect.setY((this.getPosition().y + PLAYER_HEIGHT / 2 - scrollY) * TILE_SIZE * -1);
+        playerDisplayRect.setX((this.getPosition().x - PLAYER_WIDTH / 2 - scrollX) * TILE_SIZE);
+        playerDisplayRect.setY((this.getPosition().y + PLAYER_HEIGHT / 2 - scrollY) * TILE_SIZE * -1);
 
         animation.paint(scrollX, scrollY);
     }
