@@ -130,7 +130,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                 // tend that towards 90 a bit
                 jumpAngleRad = Math.PI / 2 * 0.25 + jumpAngleRad * 0.75;
                 // weighted-average with player jump velocity
-                double magnitude = velocity.getMagnitude() * 0.3 + PLAYER_JUMP_VELOCITY * 0.7;
+                double magnitude = velocity.getMagnitude() * 0.4 + PLAYER_JUMP_VELOCITY * 0.7;
 
                 velocity = new Vector2(velocity.x * 0.2 + Math.cos(jumpAngleRad) * magnitude,
                         Math.sin(jumpAngleRad) * magnitude
