@@ -101,7 +101,7 @@ public class GamePage implements GameConstants {
         tileMap.paint(scrollX, scrollY);
         player.paint(scrollX, scrollY);
         fpsCounter.paint();
-//        parallaxBackground.paint(scrollX, scrollY);
+        parallaxBackground.paint(scrollX, scrollY);
         for (CollectableEntity entity : collectableEntities) entity.paint(scrollX, scrollY);
     }
 
