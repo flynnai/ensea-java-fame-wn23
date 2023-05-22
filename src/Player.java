@@ -107,6 +107,13 @@ public class Player extends PhysicsEntity implements GameConstants {
                     // redirect force upwards
                     newVelocity.y = newVelocity.getMagnitude() * WALL_RUN_BOOSTER;
                     newVelocity.x = 0;
+                    // move perfectly far from edge
+                    Vector2 newPosition = getPosition();
+                    // align hitbox to right side
+                    newPosition.x = Math.floor(newPosition.x + PLAYER_WIDTH / 2 + 0.1) - PLAYER_WIDTH / 2;
+                    // move left a bit
+                    newPosition.x -= PLAYER_WIDTH * 0.15;
+                    setPosition(newPosition);
                 }
             }
 
@@ -135,6 +142,7 @@ public class Player extends PhysicsEntity implements GameConstants {
             if (newVelocity.y < 0) {
                 actionMode = PlayerActionMode.NORMAL;
                 animation.endWallRunning();
+                setPosition(getPosition().add(new Vector2(PLAYER_WIDTH * 0.15, 0)));
                 checkForEdgeHang();
             }
         }
@@ -168,8 +176,8 @@ public class Player extends PhysicsEntity implements GameConstants {
     }
 
     public void paint(double scrollX, double scrollY) {
-        playerDisplayRect.setX((this.getPosition().x - PLAYER_WIDTH / 2 - scrollX) * TILE_SIZE);
-        playerDisplayRect.setY((this.getPosition().y + PLAYER_HEIGHT / 2 - scrollY) * TILE_SIZE * -1);
+//        playerDisplayRect.setX((this.getPosition().x - PLAYER_WIDTH / 2 - scrollX) * TILE_SIZE);
+//        playerDisplayRect.setY((this.getPosition().y + PLAYER_HEIGHT / 2 - scrollY) * TILE_SIZE * -1);
 
         animation.paint(scrollX, scrollY);
     }

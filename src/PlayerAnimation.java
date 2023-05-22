@@ -124,17 +124,17 @@ public class PlayerAnimation extends ImageView implements GameConstants {
             } else if (mode == AnimationMode.PRE_JUMPING) {
                 frameNum++;
                 // actually jump
-                velocity.y += PLAYER_JUMP_VELOCITY;
 
-                double jumpAngleRad = Math.atan2(velocity.y, velocity.x);
-                double magnitude = (PLAYER_JUMP_VELOCITY + velocity.getMagnitude()) / 2;
+                // get jump angle if we added PLAYER_JUMP_VELOCITY straight up
+                double jumpAngleRad = Math.atan2(PLAYER_JUMP_VELOCITY, velocity.x);
+                // tend that towards 90 a bit
+                jumpAngleRad = Math.PI / 2 * 0.25 + jumpAngleRad * 0.75;
+                // weighted-average with player jump velocity
+                double magnitude = velocity.getMagnitude() * 0.3 + PLAYER_JUMP_VELOCITY * 0.7;
 
-//                final double JUMP_ANGLE = 60;
-//                double jumpAngleRad = JUMP_ANGLE * Math.PI / 180;
-                velocity = new Vector2(Math.cos(jumpAngleRad) * magnitude,
+                velocity = new Vector2(velocity.x * 0.2 + Math.cos(jumpAngleRad) * magnitude,
                         Math.sin(jumpAngleRad) * magnitude
                 );
-//                velocity = velocity.add(new Vector2(0, PLAYER_JUMP_VELOCITY));
                 player.setVelocity(velocity);
                 mode = AnimationMode.JUMPING;
                 SoundMixer.playSound("jump.wav");
