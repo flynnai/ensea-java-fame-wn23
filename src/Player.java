@@ -71,7 +71,9 @@ public class Player extends PhysicsEntity implements GameConstants {
 
         } else if (actionMode == PlayerActionMode.EDGE_HANGING) {
             if (inputsPressed.get(UserInput.UP)) {
-                animation.initiateClimbUpFromHanging();
+                if (animation.mode != PlayerAnimation.AnimationMode.HANGING_EDGE_CLIMBING) {
+                    animation.initiateClimbUpFromHanging();
+                }
             }
 
             if (animation.direction == Direction.RIGHT && inputsPressed.get(UserInput.LEFT)

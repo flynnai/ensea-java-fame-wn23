@@ -27,7 +27,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
     AnimationMode mode = AnimationMode.STANDING;
     Player player;
     double lastAnimationTime = 0;
-    final double animationSpeed = 0.07;
+    final double animationSpeed = 0.06;
     Direction direction = Direction.RIGHT;
 
     public PlayerAnimation(Player player) {
@@ -51,10 +51,12 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         mode = AnimationMode.EDGE_HANGING;
         frameNum = 68;
         this.direction = direction;
+        SoundMixer.playSound("grab_edge.wav");
     }
 
     public void initiateClimbUpFromHanging() {
         mode = AnimationMode.HANGING_EDGE_CLIMBING;
+        SoundMixer.playSound("climb_up.wav");
     }
     public void initiateHangingPressOff() {
         mode = AnimationMode.HANGING_PRESS_OFF;
@@ -93,6 +95,12 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                         frameNum = 22;
                     }
                 }
+                // play sounds on footstep frames
+                if (frameNum % 10 == 5) {
+                    SoundMixer.playSound("footstep1.wav");
+                } else if (frameNum % 10 == 0) {
+                    SoundMixer.playSound("footstep2.wav");
+                }
             } else if (mode == AnimationMode.STANDING) {
                 frameNum = 0;
             } else if (mode == AnimationMode.PRE_JUMPING) {
@@ -101,6 +109,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                 velocity = velocity.add(new Vector2(0, PLAYER_JUMP_VELOCITY));
                 player.setVelocity(velocity);
                 mode = AnimationMode.JUMPING;
+                SoundMixer.playSound("jump.wav");
             } else if (mode == AnimationMode.JUMPING) {
                 frameNum++;
                 if (frameNum > 88) {
@@ -160,6 +169,10 @@ public class PlayerAnimation extends ImageView implements GameConstants {
 
         if (player.wasTouchingGround && velocity.y < 0.1) {
             if (mode == AnimationMode.STANDING || mode == AnimationMode.JUMPING || mode == AnimationMode.RUNNING || mode == AnimationMode.FALLING) {
+                if (mode == AnimationMode.FALLING || mode == AnimationMode.JUMPING) {
+                    // play landing sound
+                    SoundMixer.playSound("land_on_ground.wav");
+                }
                 if (Math.abs(velocity.x) < 1.0) {
                     mode = AnimationMode.STANDING;
                 } else {

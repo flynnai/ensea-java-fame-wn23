@@ -8,7 +8,7 @@ public abstract class CollectableEntity implements GameConstants {
     }
 
     public void move(double currentSecondsTime, Player player) {
-        if (player.getHitBox().intersectsWith(hitArea)) {
+        if (!hasBeenCollected && player.getHitBox().intersectsWith(hitArea)) {
             getCollected();
         }
     }

@@ -38,4 +38,9 @@ public class CollectableBread extends CollectableEntity {
         );
     }
 
+    @Override
+    public void getCollected() {
+        SoundMixer.playSound("ding.wav");
+        super.getCollected();
+    }
 }

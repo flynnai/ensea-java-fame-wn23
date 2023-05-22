@@ -63,6 +63,9 @@ public class GamePage implements GameConstants {
         inputsPressed = new Hashtable<>();
         InputManager inputManager = new InputManager(scene, inputsPressed);
 
+        // set up sound mixer singleton instance so sounds are pre-loaded
+        SoundMixer.initialize();
+
         gameLoop = new AnimationTimer() {
             public void handle(long currentNanoTime) {
                 // find amount of time passed since last loop run
