@@ -109,18 +109,19 @@ public class PhysicsEntity implements GameConstants {
         position.y += velocity.y * timeDeltaSeconds;
 
         wasTouchingGround = false;
+        hitBox.setPosition(position);
         if (isTouchingTerrain()) {
             // find out which side
-            if (isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y + hitBox.height / 2))
-                    || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y + hitBox.height / 2))) {
+            if (isPointTouchingTerrain(new Vector2(hitBox.getLeft(), hitBox.getTop()))
+                    || isPointTouchingTerrain(new Vector2(hitBox.getRight(), hitBox.getTop()))) {
                 // correct down
                 // ASSUMES tile, doesn't work for complex shapes
-                position.y = Math.ceil(position.y) - hitBox.height / 2 - floatAmount;
-            } else if (isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y - hitBox.height / 2))
-                    || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y - hitBox.height / 2))) {
+                position.y = Math.ceil(hitBox.getCenter().y) - hitBox.height / 2 - floatAmount - hitBox.centerY;
+            } else if (isPointTouchingTerrain(new Vector2(hitBox.getLeft(), hitBox.getBottom()))
+                    || isPointTouchingTerrain(new Vector2(hitBox.getRight(), hitBox.getBottom()))) {
                 // correct up
                 // ASSUMES tile, doesn't work for complex shapes
-                position.y = Math.floor(position.y) + hitBox.height / 2 + floatAmount;
+                position.y = Math.floor(hitBox.getCenter().y) + hitBox.height / 2 + floatAmount - hitBox.centerY;
                 wasTouchingGround = true;
             } else {
                 System.out.println("I don't think this should happen, since it should be some side that's hitting");
@@ -133,29 +134,32 @@ public class PhysicsEntity implements GameConstants {
             wasTouchingSlope = true;
             velocity.x *= 0.95;
             int maxTries = 100;
-            while (maxTries-- > 0 && isPointTouchingSlope(new Vector2(position.x, position.y - hitBox.height / 2))) {
+            hitBox.setPosition(position);
+            while (maxTries-- > 0 && isPointTouchingSlope(new Vector2(hitBox.getCenter().x, hitBox.getBottom()))) {
                 position.y += 0.005;
                 velocity.y = 0;
+                hitBox.setPosition(position);
             }
         }
 
 
         position.x += velocity.x * timeDeltaSeconds;
 
+        hitBox.setPosition(position);
         if (isTouchingTerrain() && !wasTouchingSlope) {
             // find out which side
-            if (isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y - hitBox.height / 2))
-                    || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y))
-                    || isPointTouchingTerrain(new Vector2(position.x + hitBox.width / 2, position.y + hitBox.height / 2))) {
+            if (isPointTouchingTerrain(new Vector2(hitBox.getRight(), hitBox.getBottom()))
+                    || isPointTouchingTerrain(new Vector2(hitBox.getRight(), hitBox.getCenter().y))
+                    || isPointTouchingTerrain(new Vector2(hitBox.getRight(), hitBox.getTop()))) {
                 // hitting right side, correct left
                 // ASSUMES tile, doesn't work for complex shapes
-                position.x = Math.ceil(position.x) - hitBox.width / 2 - floatAmount;
-            } else if (isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y - hitBox.height / 2))
-                    || isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y))
-                    || isPointTouchingTerrain(new Vector2(position.x - hitBox.width / 2, position.y + hitBox.height / 2))) {
+                position.x = Math.ceil(hitBox.getCenter().x) - hitBox.width / 2 - floatAmount - hitBox.centerX;
+            } else if (isPointTouchingTerrain(new Vector2(hitBox.getLeft(), hitBox.getBottom()))
+                    || isPointTouchingTerrain(new Vector2(hitBox.getLeft(), hitBox.getCenter().y))
+                    || isPointTouchingTerrain(new Vector2(hitBox.getLeft(), hitBox.getTop()))) {
                 // hitting left side, correct right
                 // ASSUMES tile, doesn't work for complex shapes
-                position.x = Math.floor(position.x) + hitBox.width / 2 + floatAmount;
+                position.x = Math.floor(hitBox.getCenter().x) + hitBox.width / 2 + floatAmount - hitBox.centerX;
             }
             velocity.x = 0;
         }
@@ -221,5 +225,10 @@ public class PhysicsEntity implements GameConstants {
 
     public final CollidableRect getHitBox() {
         return this.hitBox;
+    }
+
+    protected final void reassignHitBox(CollidableRect newHitBox) {
+        hitBox = newHitBox;
+        hitBox.setPosition(position);
     }
 }

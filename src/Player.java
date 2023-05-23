@@ -13,6 +13,7 @@ enum PlayerActionMode {
     EDGE_HANGING,
     EDGE_PRESSING,
     WALL_RUNNING,
+    SLIDING,
 }
 
 public class Player extends PhysicsEntity implements GameConstants {
@@ -31,15 +32,18 @@ public class Player extends PhysicsEntity implements GameConstants {
     double timeLeftTillCanHang = 0.0;
     private double lastWallJumpedTime = 0;
     private Direction lastWallJumpedDirection = null;
-
+    private double slideStartTime = 0;
     public Player(Pane pane, List<List<Tile>> tileMatrix) {
-        super(PLAYER_START_POSITION, new Vector2(0, 0), new CollidableRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT), tileMatrix);
+        super(PLAYER_START_POSITION, new Vector2(0, 0), playerStandingHitBox, tileMatrix);
 
         // set up player JavaFX element
         playerDisplayRect = new Rectangle(PLAYER_WIDTH * TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE);
 //        pane.getChildren().add(playerDisplayRect);
         animation = new PlayerAnimation(this);
         pane.getChildren().add(animation);
+
+        reassignHitBox(playerSlidingHitBox);
+
     }
 
     private void checkForEdgeHang() {
@@ -120,6 +124,11 @@ public class Player extends PhysicsEntity implements GameConstants {
             if (wasTouchingGround && Math.abs(getVelocity().x) > 0.5 * PLAYER_MAX_SPEED && inputsPressed.get(UserInput.DOWN)) {
                 if (animation.mode != PlayerAnimation.AnimationMode.SLIDING) {
                     animation.initiateSliding();
+                    // reassign to smaller hitbox for sliding under things
+                    reassignHitBox(playerSlidingHitBox);
+
+                    slideStartTime = currentSecondsTime;
+                    actionMode = PlayerActionMode.SLIDING;
                 }
             }
             if (inputsPressed.get(UserInput.LEFT)) {
@@ -186,6 +195,29 @@ public class Player extends PhysicsEntity implements GameConstants {
                 newVelocity.y *= 0.3;
                 lastWallJumpedTime = currentSecondsTime;
                 lastWallJumpedDirection = dir;
+            }
+        } else if (actionMode == PlayerActionMode.SLIDING) {
+
+            boolean isHeadBlocked = isPointTouchingTerrain(getPosition().add(new Vector2(-PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2)))
+                    || isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2)));
+            System.out.println("Head is blockedd: " + isHeadBlocked);
+            newVelocity.y -= GRAVITY * timeDeltaSeconds;
+            newVelocity.x /= GROUND_FRICTION;
+            if (!isHeadBlocked) {
+                newVelocity.x *= 0.99;
+            } else {
+                newVelocity.x = Math.max(Math.abs(newVelocity.x), PLAYER_MAX_SPEED / 3) * (newVelocity.x > 0 ? 1 : -1);
+            }
+
+            boolean isFalling = !wasTouchingGround && getVelocity().y < -0.5;
+            double slideInterval = currentSecondsTime - slideStartTime;
+
+            final double SLIDE_MIN_LENGTH = 0.6;
+            if (!isHeadBlocked && (isFalling || (!inputsPressed.get(UserInput.DOWN) && slideInterval > SLIDE_MIN_LENGTH))) {
+                actionMode = PlayerActionMode.NORMAL;
+                animation.endSliding();
+
+                reassignHitBox(playerStandingHitBox);
             }
         }
 

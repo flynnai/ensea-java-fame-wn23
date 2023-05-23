@@ -23,6 +23,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         HANGING_PRESS_OFF,
         WALL_RUNNING,
         SLIDING,
+        END_SLIDING,
     }
 
     int frameNum = 0;
@@ -91,6 +92,12 @@ public class PlayerAnimation extends ImageView implements GameConstants {
         // sliding is frames 137 - 142
         mode = AnimationMode.SLIDING;
         frameNum = 137;
+    }
+
+    public void endSliding() {
+        mode = AnimationMode.END_SLIDING;
+        frameNum = 141;
+        lastAnimationTime = 0;
     }
 
     public void move(double timeDeltaSeconds) {
@@ -210,6 +217,11 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                 lastAnimationTime = Math.min(0, lastAnimationTime);
 
             } else if (mode == AnimationMode.SLIDING) {
+                frameNum++;
+                if (frameNum >= 141) {
+                    frameNum = 140;
+                }
+            } else if (mode == AnimationMode.END_SLIDING) {
                 frameNum++;
                 if (frameNum >= 143) {
                     mode = AnimationMode.STANDING;

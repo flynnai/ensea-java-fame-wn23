@@ -23,4 +23,6 @@ public interface GameConstants {
     public static final double GRAVITY = 9.81;
     public static final double WALL_RUN_BOOSTER = 1.1;
     public static final double REPEAT_WALL_JUMP_THRESHOLD = 1.0; // seconds
+    final CollidableRect playerStandingHitBox = new CollidableRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
+    final CollidableRect playerSlidingHitBox = new CollidableRect(0, -PLAYER_HEIGHT / 4, PLAYER_WIDTH, PLAYER_HEIGHT / 2);
 }
