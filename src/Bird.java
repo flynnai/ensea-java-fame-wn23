@@ -50,6 +50,7 @@ public class Bird extends BenignEntity {
         this.tileMatrix = tileMatrix;
         skittishness = Math.random() * 2 + 2; // how close the player can get
         maxFlySpeed = Math.random() * 0.05 + 0.07;
+        direction = Math.random() > 0.5 ? Direction.RIGHT : Direction.LEFT;
     }
 
     boolean isPointInvalid(Vector2 point) {
@@ -122,6 +123,7 @@ public class Bird extends BenignEntity {
                 if (player.getPosition().subtract(position).getMagnitude() > Math.hypot(screenWidthTiles / 2, screenHeightTiles / 2)) {
                     // off-screen, respawn
                     position = player.getPosition();
+                    direction = Math.random() > 0.5 ? Direction.RIGHT : Direction.LEFT;
                     int sentinel = 100;
                     while (true) {
                         if (--sentinel < 0) {
@@ -233,10 +235,10 @@ public class Bird extends BenignEntity {
         if (mode == Mode.FLYING) {
             if (Math.cos(flyDirection) > 0) {
                 imageView.setScaleX(-1);
-                imageView.setRotate(-30 + 90 - flyDirection * 180 / Math.PI);
+                imageView.setRotate(-40 + 90 - flyDirection * 180 / Math.PI);
             } else {
                 imageView.setScaleX(1);
-                imageView.setRotate(30 + 90 - flyDirection * 180 / Math.PI);
+                imageView.setRotate(40 + 90 - flyDirection * 180 / Math.PI);
             }
         } else {
             imageView.setRotate(0);
