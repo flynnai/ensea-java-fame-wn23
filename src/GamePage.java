@@ -1,8 +1,13 @@
 import javafx.animation.AnimationTimer;
+import javafx.animation.FadeTransition;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -34,6 +39,14 @@ public class GamePage implements GameConstants {
         pane.setTranslateX(0);
         pane.setTranslateY(0);
         root.getChildren().add(pane);
+        // fade transition
+        Rectangle fadeRect = new Rectangle(STAGE_WIDTH, STAGE_HEIGHT);
+        fadeRect.setFill(Color.BLACK);
+        pane.getChildren().add(fadeRect);
+        FadeTransition ft = new FadeTransition(Duration.millis(1000), fadeRect);
+        ft.setFromValue(1.0);
+        ft.setToValue(0.0);
+
 
         // set up tilemap
         tileMap = new TileMap(
@@ -87,6 +100,10 @@ public class GamePage implements GameConstants {
             }
 
         };
+
+
+        fadeRect.toFront();
+        ft.play();
 
         this.startLoop();
     }

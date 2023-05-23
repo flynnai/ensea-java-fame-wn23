@@ -1,7 +1,9 @@
+import javafx.animation.FadeTransition;
 import javafx.geometry.Side;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.util.Duration;
 
 class ParallaxBackgroundLayer implements GameConstants {
     Pane pane;

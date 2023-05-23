@@ -1,6 +1,7 @@
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+
 public class GUI extends Application implements GameConstants {
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -8,9 +9,15 @@ public class GUI extends Application implements GameConstants {
         primaryStage.setResizable(false);
 
         // initiate GamePage instance and show in stage
-        GamePage gamePage = new GamePage();
-        primaryStage.setScene(gamePage.getScene());
+//        GamePage gamePage = new GamePage();
+//        primaryStage.setScene(gamePage.getScene());
+//        primaryStage.show();
+
+//        gamePage.stopLoop();
+        FinishedPage finishedPage = new FinishedPage(2);
+        primaryStage.setScene(finishedPage.getScene());
         primaryStage.show();
+
     }
 
     public static void main(String[] args) {

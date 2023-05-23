@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Pos?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+
+<StackPane prefWidth="400" prefHeight="300" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <ImageView fx:id="ribbon"
+                   fitWidth="800"
+                   fitHeight="396"
+                   translateY="80"
+        >
+            <image>
+                <Image url="file:img/final_screen/pixel-art-ribbon.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="starShadow">
+            <image>
+                <Image url="file:img/final_screen/star_shadow.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="starLeft">
+            <image>
+                <Image url="file:img/final_screen/left_star.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="starMiddle">
+            <image>
+                <Image url="file:img/final_screen/middle_star.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="starRight">
+            <image>
+                <Image url="file:img/final_screen/right_star.png"/>
+            </image>
+        </ImageView>
+    </children>
+</StackPane>

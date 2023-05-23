@@ -200,7 +200,6 @@ public class Player extends PhysicsEntity implements GameConstants {
 
             boolean isHeadBlocked = isPointTouchingTerrain(getPosition().add(new Vector2(-PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2)))
                     || isPointTouchingTerrain(getPosition().add(new Vector2(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2)));
-            System.out.println("Head is blockedd: " + isHeadBlocked);
             newVelocity.y -= GRAVITY * timeDeltaSeconds;
             newVelocity.x /= GROUND_FRICTION;
             if (!isHeadBlocked) {
@@ -216,7 +215,6 @@ public class Player extends PhysicsEntity implements GameConstants {
             if (!isHeadBlocked && (isFalling || (!inputsPressed.get(UserInput.DOWN) && slideInterval > SLIDE_MIN_LENGTH))) {
                 actionMode = PlayerActionMode.NORMAL;
                 animation.endSliding();
-
                 reassignHitBox(playerStandingHitBox);
             }
         }
