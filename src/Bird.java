@@ -197,7 +197,7 @@ public class Bird extends BenignEntity {
                 mode = Mode.FLYING;
                 boolean isPlayerToTheLeft = player.getPosition().x < position.x;
                 // let's make some birds go towards the player
-                isPlayerToTheLeft = Math.random() < 0.2 ? isPlayerToTheLeft : !isPlayerToTheLeft;
+                isPlayerToTheLeft = (Math.random() < 0.8) ? isPlayerToTheLeft : !isPlayerToTheLeft;
                 flyDirection = isPlayerToTheLeft ? (Math.random() * 0.5 + 0.2) : (Math.PI - (Math.random() * 0.5 + 0.2));
                 flyAngularVelocity = 0;
                 frame = Frame.FLY_WINGS_UP;
