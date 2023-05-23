@@ -49,7 +49,7 @@ public class Bird extends BenignEntity {
         this.player = player;
         this.tileMatrix = tileMatrix;
         skittishness = Math.random() * 2 + 2; // how close the player can get
-        maxFlySpeed = Math.random() * 0.07 + 0.05;
+        maxFlySpeed = Math.random() * 0.05 + 0.07;
     }
 
     boolean isPointInvalid(Vector2 point) {
@@ -199,6 +199,7 @@ public class Bird extends BenignEntity {
                 flyDirection = isPlayerToTheLeft ? (Math.random() * 0.5 + 0.2) : (Math.PI - (Math.random() * 0.5 + 0.2));
                 flyAngularVelocity = 0;
                 frame = Frame.FLY_WINGS_UP;
+                behaviorTimer = animationSpeed;
             }
         }
     }
