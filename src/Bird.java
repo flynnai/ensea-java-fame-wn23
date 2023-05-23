@@ -16,6 +16,7 @@ public class Bird extends BenignEntity {
 
     ImageView imageView;
     Player player;
+
     enum Frame {
         FLY_WINGS_UP,
         FLY_WINGS_MIDDLE,
@@ -25,6 +26,7 @@ public class Bird extends BenignEntity {
         LEAN,
         PECK
     }
+
     Frame frame = Frame.PERCH;
     Direction direction = Direction.RIGHT;
     private Mode mode = Mode.PECKING;
@@ -36,21 +38,22 @@ public class Bird extends BenignEntity {
     private double flyDirection;
     private double flyAngularVelocity;
     private double flySpeed;
+    private final double maxFlySpeed;
     private boolean wasHeadingForWall = false;
-    private int numFlyingLoops = 0;
-    private double flySwing = 0;
+    private double skittishness;
+
     public Bird(Vector2 position, Player player, Pane pane, List<List<Tile>> tileMatrix) {
         super(position);
         imageView = new ImageView(new Image("file:img/sprite_sheets/bird.png"));
         pane.getChildren().add(imageView);
         this.player = player;
         this.tileMatrix = tileMatrix;
+        skittishness = Math.random() * 2 + 2; // how close the player can get
+        maxFlySpeed = Math.random() * 0.07 + 0.05;
     }
 
     boolean isPointInvalid(Vector2 point) {
-        if (point.x < 0 || point.x > tileMatrix.get(0).size()) {
-            return true;
-        } else if (point.y < -tileMatrix.size() || point.y > 6) {
+        if (point.y < -tileMatrix.size() || point.y > 6) {
             return true;
         }
         int row = (int) -Math.floor(point.y) - 1;
@@ -100,34 +103,58 @@ public class Bird extends BenignEntity {
                     // wait a bit before doing something else
                     behaviorTimer = Math.random() * 5;
                 } else {
-                    // since this is running, the animation timer has run out. Let's do something.
-                    if (false) {
-                        mode = Mode.PECKING;
-                        frame = Frame.LEAN_TRANSITION;
-                    } else {
-                        mode = Mode.FLYING;
-                        boolean isPlayerToTheLeft = player.getPosition().x < position.x;
-                        flyDirection = isPlayerToTheLeft ? (Math.random() * 0.5 + 0.2) : (Math.PI - (Math.random() * 0.5 + 0.2));
-                        flyAngularVelocity = 0;
-                        frame = Frame.FLY_WINGS_UP;
-                        behaviorTimer = Math.random() * 5 + 2;
-                        numFlyingLoops = 500;
-                        flySwing = 0;
-                    }
+                    mode = Mode.PECKING;
+                    frame = Frame.LEAN_TRANSITION;
                 }
             } else if (mode == Mode.FLYING) {
-                // behavior timer ran out
-                if (--numFlyingLoops > 0) {
-//                    flySwing = Math.random() > 0 ? 10.0 : -10.0;
-//                    behaviorTimer = Math.random() * 5 + 2;
-                } else {
-                    // TODO
+
+                if (frame == Frame.FLY_WINGS_UP) {
+                    frame = Frame.FLY_WINGS_DOWN;
+                } else if (frame == Frame.FLY_WINGS_DOWN) {
+                    frame = Frame.FLY_WINGS_MIDDLE;
+                } else if (frame == Frame.FLY_WINGS_MIDDLE) {
+                    frame = Frame.FLY_WINGS_UP;
+                }
+
+                // check if we should respawn
+                double screenWidthTiles = STAGE_WIDTH / TILE_SIZE;
+                double screenHeightTiles = STAGE_HEIGHT / TILE_SIZE;
+                if (player.getPosition().subtract(position).getMagnitude() > Math.hypot(screenWidthTiles / 2, screenHeightTiles / 2)) {
+                    // off-screen, respawn
+                    position = player.getPosition();
+                    int sentinel = 100;
+                    while (true) {
+                        if (--sentinel < 0) {
+                            System.out.println("Couldn't find a platform ");
+                            break;
+                        }
+                        // pick an x-position
+                        position.x = Math.random() * tileMatrix.get(0).size();
+                        if (Math.abs(player.getPosition().x - position.x) <= screenWidthTiles + 1) {
+                            // no good, too close
+                            continue;
+                        }
+                        // find a platform to land on
+                        boolean isGoodPlatform = false;
+                        for (double i = 2.5; i > -tileMatrix.size() + 1; i--) {
+                            position.y = i;
+                            if (isPointInvalid(position)) {
+                                // found a tile, perch on it
+                                position.y = Math.floor(i + 1) + 0.1;
+                                isGoodPlatform = true;
+                                break;
+                            }
+                        }
+
+                        if (isGoodPlatform) break;
+                    }
+                    mode = Mode.PERCHING;
+                    frame = Frame.PERCH;
                 }
             }
         }
 
         if (mode == Mode.FLYING) {
-            final double maxFlySpeed = 0.05;
             final double maxTurnSpeed = 0.2;
             flySpeed = Math.min(flySpeed + 0.5 * timeDeltaSeconds, maxFlySpeed);
             flyDirection += flyAngularVelocity;
@@ -151,26 +178,28 @@ public class Bird extends BenignEntity {
                     }
 
                     shouldTurnLeft = flyAngularVelocity > 0;
-
-                    System.out.println("We're running this. I can turn left: " + leftWallDist + ", and right: " + rightWallDist + " , since flyAngularVelocity is " + flyAngularVelocity);
                 }
                 flyAngularVelocity = Math.min(flyAngularVelocity + (shouldTurnLeft ? 1 : -1) * maxTurnSpeed * timeDeltaSeconds, maxTurnSpeed * (shouldTurnLeft ? 1 : -1));
             } else {
                 wasHeadingForWall = false;
-
-                if (Math.abs(flySwing) > 0.1) {
-                    flySwing *= 0.95;
-                    shouldTurnLeft = flySwing > 0;
-                    flyAngularVelocity = Math.min(flyAngularVelocity + (shouldTurnLeft ? 1 : -1) * maxTurnSpeed * timeDeltaSeconds, maxTurnSpeed * (shouldTurnLeft ? 1 : -1));
-                } else {
-                    flyAngularVelocity *= 0.95;
-                }
+                flyAngularVelocity *= 0.95;
             }
 
 
             position.x += Math.cos(flyDirection) * flySpeed;
             position.y += Math.sin(flyDirection) * flySpeed;
 
+        } else if (mode == Mode.PERCHING || mode == Mode.PECKING) {
+            // check how close the player is
+            if (player.getPosition().subtract(position).getMagnitude() < skittishness) {
+                mode = Mode.FLYING;
+                boolean isPlayerToTheLeft = player.getPosition().x < position.x;
+                // let's make some birds go towards the player
+                isPlayerToTheLeft = Math.random() < 0.2 ? isPlayerToTheLeft : !isPlayerToTheLeft;
+                flyDirection = isPlayerToTheLeft ? (Math.random() * 0.5 + 0.2) : (Math.PI - (Math.random() * 0.5 + 0.2));
+                flyAngularVelocity = 0;
+                frame = Frame.FLY_WINGS_UP;
+            }
         }
     }
 
@@ -195,10 +224,22 @@ public class Bird extends BenignEntity {
         cropArea.setTranslateY(0);
         imageView.setViewport(new Rectangle2D(cropArea.getTranslateX(), cropArea.getTranslateY(), cropArea.getWidth(), cropArea.getHeight()));
 
-        imageView.setScaleX(direction == Direction.LEFT ? -1 : 1);
         imageView.setFitWidth(BIRD_SIZE * TILE_SIZE);
         imageView.setFitHeight(BIRD_SIZE * TILE_SIZE);
         imageView.setX((position.x - BIRD_SIZE / 2 - scrollX) * TILE_SIZE);
         imageView.setY((position.y + BIRD_SIZE / 2 - scrollY) * TILE_SIZE * -1);
+
+        if (mode == Mode.FLYING) {
+            if (Math.cos(flyDirection) > 0) {
+                imageView.setScaleX(-1);
+                imageView.setRotate(-30 + 90 - flyDirection * 180 / Math.PI);
+            } else {
+                imageView.setScaleX(1);
+                imageView.setRotate(30 + 90 - flyDirection * 180 / Math.PI);
+            }
+        } else {
+            imageView.setRotate(0);
+            imageView.setScaleX(direction == Direction.LEFT ? -1 : 1);
+        }
     }
 }

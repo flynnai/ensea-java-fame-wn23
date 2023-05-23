@@ -212,7 +212,7 @@ public class PhysicsEntity implements GameConstants {
     }
 
     public final Vector2 getPosition() {
-        return this.position;
+        return new Vector2(position);
     }
 
     public final Vector2 getVelocity() {

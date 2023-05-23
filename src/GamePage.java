@@ -71,7 +71,7 @@ public class GamePage implements GameConstants {
         // set up benign entities that populate our stage
         benignEntities = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
-            benignEntities.add(new Bird(new Vector2(20, -8.9), player, pane, tileMap.getCollidableLayerMatrix()));
+            benignEntities.add(new Bird(new Vector2(13, -2.9), player, pane, tileMap.getCollidableLayerMatrix()));
         }
 
         gameLoop = new AnimationTimer() {
