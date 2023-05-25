@@ -4,10 +4,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class TileMapLayer implements GameConstants {
@@ -17,7 +15,7 @@ public class TileMapLayer implements GameConstants {
     private Image spriteSheet;
     private int tilePaddingPx;
 
-    public TileMapLayer(JSONArray tilesJson, int mapWidth, int mapHeight, Rectangle2D viewport, int tilePaddingPx, Image spriteSheet, Pane pane, boolean isCollidable, List<CollectableEntity> collectableEntities) {
+    public TileMapLayer(JSONArray tilesJson, int mapWidth, int mapHeight, Rectangle2D viewport, int tilePaddingPx, Image spriteSheet, Pane pane, boolean isCollidable, List<CollectableEntity> collectableEntities, GamePage gamePage) {
         List<List<Tile>> tileMatrix = new ArrayList<>();
         // initialize to all `null`'s
         for (int i = 0; i < mapHeight; i++) {
@@ -56,7 +54,7 @@ public class TileMapLayer implements GameConstants {
                 ));
                 pane.getChildren().add(imageView);
 
-                collectableEntities.add(new CollectableBread(new Vector2(mapCol + 0.5, -mapRow - 0.5), breadType, imageView));
+                collectableEntities.add(new CollectableBread(new Vector2(mapCol + 0.5, -mapRow - 0.5), breadType, imageView, gamePage));
             } else {
                 // add a new tile to the tilemap
                 tileMatrix.get(mapRow).set(mapCol, new Tile(tilesetRow, tilesetCol, mapCol + 0.5, -mapRow - 0.5, isCollidable));

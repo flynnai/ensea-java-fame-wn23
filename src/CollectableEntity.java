@@ -1,3 +1,5 @@
+import javafx.scene.image.ImageView;
+
 public abstract class CollectableEntity implements GameConstants {
     protected Vector2 position;
     protected CollidableShape hitArea;

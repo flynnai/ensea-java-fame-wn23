@@ -17,6 +17,7 @@ import java.util.List;
 public class GamePage implements GameConstants {
     private Dictionary<UserInput, Boolean> inputsPressed;
     private long startNanoTime;
+    private long prevNanoTime;
     private Scene scene;
 
     private AnimationTimer gameLoop;
@@ -28,6 +29,8 @@ public class GamePage implements GameConstants {
     ParallaxBackground parallaxBackground;
     private List<CollectableEntity> collectableEntities = new ArrayList<>();
     private List<BenignEntity> benignEntities = new ArrayList<>();
+    public int numBreadCollected = 0;
+    private HUD hud;
 
     public GamePage() throws Exception {
         // set up root node and create scene with it
@@ -47,7 +50,6 @@ public class GamePage implements GameConstants {
         ft.setFromValue(1.0);
         ft.setToValue(0.0);
 
-
         // set up tilemap
         tileMap = new TileMap(
                 "./img/sprite_sheets/parisian_tileset.png",
@@ -56,7 +58,8 @@ public class GamePage implements GameConstants {
                 "./data/tile_maps/map1.json",
                 pane,
                 new Rectangle2D(0, 0, scene.getWidth(), scene.getHeight()),
-                collectableEntities
+                collectableEntities,
+                this
         );
 
         // set up player in world
@@ -70,6 +73,9 @@ public class GamePage implements GameConstants {
 
         // set up FPS counter
         fpsCounter = new DevHUD(pane, player, camera);
+
+        // user's heads-up-display
+        hud = new HUD(pane, this);
 
         // set up parallax backgrounds
         parallaxBackground = new ParallaxBackground(pane);
@@ -90,10 +96,10 @@ public class GamePage implements GameConstants {
         gameLoop = new AnimationTimer() {
             public void handle(long currentNanoTime) {
                 // find amount of time passed since last loop run
-                long elapsedNanoSeconds = currentNanoTime - startNanoTime;
-                startNanoTime = currentNanoTime;
+                long elapsedNanoSeconds = currentNanoTime - prevNanoTime;
+                prevNanoTime = currentNanoTime;
                 double timeDeltaSeconds = elapsedNanoSeconds / 1000000000.0;
-                double currentSecondsTime = currentNanoTime / 1000000000.0;
+                double currentSecondsTime = (currentNanoTime - startNanoTime) / 1000000000.0;
                 move(currentSecondsTime, Math.min(timeDeltaSeconds, 0.3));
 
                 paint();
@@ -116,6 +122,8 @@ public class GamePage implements GameConstants {
         camera.move(timeDeltaSeconds);
         // update the FPS counter's frame count
         fpsCounter.move(currentSecondsTime);
+        // update the HUD timer
+        hud.move(timeDeltaSeconds);
         // see if any entities are touching player
         for (CollectableEntity entity : collectableEntities) entity.move(currentSecondsTime, player);
         // move our benign entities around
@@ -131,6 +139,7 @@ public class GamePage implements GameConstants {
         tileMap.paint(scrollX, scrollY);
         player.paint(scrollX, scrollY);
         fpsCounter.paint();
+        hud.paint();
         parallaxBackground.paint(scrollX, scrollY);
         for (CollectableEntity entity : collectableEntities) entity.paint(scrollX, scrollY);
         for (BenignEntity entity : benignEntities) entity.paint(scrollX, scrollY);
@@ -142,7 +151,7 @@ public class GamePage implements GameConstants {
 
     public void startLoop() {
         // initialize time
-        startNanoTime = System.nanoTime();
+        prevNanoTime = startNanoTime = System.nanoTime();
         gameLoop.start();
     }
 
