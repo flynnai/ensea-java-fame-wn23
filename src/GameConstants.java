@@ -10,7 +10,7 @@ public interface GameConstants {
     public static final double RUNNING_FRICTION = 0.98;
     public static final double AIR_FRICTION = 0.99;
     public static final double PLAYER_AIR_MOVE_FORCE = 2;
-    public static final Vector2 PLAYER_START_POSITION = new Vector2(15, -19);
+    public static final Vector2 PLAYER_START_POSITION = new Vector2(10, -19);
     // the bottom of the map, where the player will fall and die
     public static final int WORLD_BOTTOM = -40;
     // parallax background speed
@@ -21,7 +21,7 @@ public interface GameConstants {
     public final float PLAYER_WIDTH = 0.62f;
     public final float PLAYER_HEIGHT = 1.4f;
     public static final double GRAVITY = 9.81;
-    public static final double WALL_RUN_BOOSTER = 1.1;
+    public static final double WALL_RUN_BOOSTER = 1.2;
     public static final double REPEAT_WALL_JUMP_THRESHOLD = 1.0; // seconds
     final CollidableRect playerStandingHitBox = new CollidableRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
     final CollidableRect playerSlidingHitBox = new CollidableRect(0, -PLAYER_HEIGHT / 4, PLAYER_WIDTH, PLAYER_HEIGHT / 2);

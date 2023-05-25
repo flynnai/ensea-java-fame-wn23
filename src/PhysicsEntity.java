@@ -132,7 +132,7 @@ public class PhysicsEntity implements GameConstants {
         if (isTouchingSlope()) {
             wasTouchingGround = true;
             wasTouchingSlope = true;
-            velocity.x *= 0.95;
+//            velocity.x *= 0.95;
             int maxTries = 100;
             hitBox.setPosition(position);
             while (maxTries-- > 0 && isPointTouchingSlope(new Vector2(hitBox.getCenter().x, hitBox.getBottom()))) {
