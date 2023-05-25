@@ -32,10 +32,10 @@ public class GUI extends Application implements GameConstants {
         if (ratioBread > 0.2 && ratioOfBestTime < 2.0) {
             numStars = 1;
         }
-        if (ratioBread > 0.8 && ratioOfBestTime < 1.5) {
+        if (ratioBread > 0.6 && ratioOfBestTime < 1.5) {
             numStars = 2;
         }
-        if (ratioBread > 0.9999 && ratioOfBestTime < 1.0) {
+        if (ratioBread > 0.95 && ratioOfBestTime < 1.0) {
             numStars = 3;
         }
 
