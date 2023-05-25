@@ -94,6 +94,10 @@ public class GamePage implements GameConstants {
             benignEntities.add(new Bird(new Vector2(18 + Math.random() * 2, -19.9), player, pane, tileMap.getCollidableLayerMatrix()));
         }
 
+        for (int i = 0; i < 10; i++) {
+            benignEntities.add(new Bird(new Vector2(55 + Math.random() * 2, -20.9), player, pane, tileMap.getCollidableLayerMatrix()));
+        }
+
         gameLoop = new AnimationTimer() {
             public void handle(long currentNanoTime) {
                 // find amount of time passed since last loop run
