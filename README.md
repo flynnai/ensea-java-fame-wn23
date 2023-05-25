@@ -1,6 +1,6 @@
 Open in Intellij, then create a build configuration with these options:
 
-"ANT" Build Configuration
+"Application" Build Configuration
 
 Click "Modify Options" -> "Add VM Options"
 
