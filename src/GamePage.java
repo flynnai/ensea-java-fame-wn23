@@ -101,8 +101,9 @@ public class GamePage implements GameConstants {
                 prevNanoTime = currentNanoTime;
                 double timeDeltaSeconds = elapsedNanoSeconds / 1000000000.0;
                 double currentSecondsTime = (currentNanoTime - startNanoTime) / 1000000000.0;
-                move(currentSecondsTime, Math.min(timeDeltaSeconds, 0.3));
-
+                if (elapsedNanoSeconds >= 1.0 / 60) {
+                    move(currentSecondsTime, Math.min(timeDeltaSeconds, 0.3));
+                }
                 paint();
             }
 
