@@ -1,0 +1,22 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="JacondeV3:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/JacondeV3_jar</output-path>
+    <root id="archive" name="JacondeV3.jar">
+      <element id="module-output" name="JacondeV3" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-19.0.2.1/lib/javafx-swt.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-19.0.2.1/lib/javafx.web.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-19.0.2.1/lib/javafx.base.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-19.0.2.1/lib/javafx.fxml.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-19.0.2.1/lib/javafx.media.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-19.0.2.1/lib/javafx.swing.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-19.0.2.1/lib/javafx.controls.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/javafx-sdk-19.0.2.1/lib/javafx.graphics.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/json-20140107.jar" path-in-jar="/" />
+      <element id="library" level="project" name="lib" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/googlecode/playn/playn-jbox2d/1.9/playn-jbox2d-1.9.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jbox2d/jbox2d-library/2.2.1.1/jbox2d-library-2.2.1.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/googlecode/playn/playn-core/1.9/playn-core-1.9.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/samskivert/pythagoras/1.4.2/pythagoras-1.4.2.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
