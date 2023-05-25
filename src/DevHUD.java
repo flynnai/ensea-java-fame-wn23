@@ -12,6 +12,7 @@ public class DevHUD {
     Text playerCoordsText;
     Camera camera;
     Text scrollCoordsText;
+    boolean isShown = false;
 
     public DevHUD(Pane pane, Player player, Camera camera) {
         fpsText = new Text(20, 40, "FPS: ");
@@ -44,6 +45,10 @@ public class DevHUD {
     }
 
     public void paint() {
+        fpsText.setVisible(isShown);
+        playerCoordsText.setVisible(isShown);
+        scrollCoordsText.setVisible(isShown);
+
         fpsText.setText("FPS: " + FPS);
         Vector2 playerCoords = player.getPosition();
         playerCoordsText.setText("Player x, y: "
@@ -54,5 +59,9 @@ public class DevHUD {
                 + (Math.round(camera.getScrollX() * 100) / 100f) + ", "
                 + (Math.round(camera.getScrollY()) * 100) / 100f
         );
+    }
+
+    public void toggleDevHud() {
+        isShown = !isShown;
     }
 }

@@ -76,7 +76,7 @@ public class GamePage implements GameConstants {
         camera = new Camera(player);
 
         // set up FPS counter
-//        fpsCounter = new DevHUD(pane, player, camera);
+        fpsCounter = new DevHUD(pane, player, camera);
 
         // user's heads-up-display
         hud = new HUD(pane, this);
@@ -86,7 +86,7 @@ public class GamePage implements GameConstants {
 
         // set up input keypress listeners
         inputsPressed = new Hashtable<>();
-        InputManager inputManager = new InputManager(scene, inputsPressed);
+        InputManager inputManager = new InputManager(scene, inputsPressed, fpsCounter);
 
         // set up benign entities that populate our stage
         benignEntities = new ArrayList<>();
@@ -122,7 +122,7 @@ public class GamePage implements GameConstants {
         // move the camera according to new positions
         camera.move(timeDeltaSeconds);
         // update the FPS counter's frame count
-//        fpsCounter.move(currentSecondsTime);
+        fpsCounter.move(currentSecondsTime);
         // update the HUD timer
         hud.move(timeDeltaSeconds);
         // see if any entities are touching player
@@ -139,7 +139,7 @@ public class GamePage implements GameConstants {
 
         tileMap.paint(scrollX, scrollY);
         player.paint(scrollX, scrollY);
-//        fpsCounter.paint();
+        fpsCounter.paint();
         hud.paint();
         parallaxBackground.paint(scrollX, scrollY);
         for (CollectableEntity entity : collectableEntities) entity.paint(scrollX, scrollY);

@@ -9,7 +9,7 @@ enum UserInput {
     RIGHT
 }
 public class InputManager {
-    public InputManager(Scene scene, Dictionary<UserInput, Boolean> inputsPressed) {
+    public InputManager(Scene scene, Dictionary<UserInput, Boolean> inputsPressed, DevHUD devHUD) {
         inputsPressed.put(UserInput.UP, false);
         inputsPressed.put(UserInput.DOWN, false);
         inputsPressed.put(UserInput.LEFT, false);
@@ -32,6 +32,9 @@ public class InputManager {
                 case RIGHT:
                 case D:
                     inputsPressed.put(UserInput.RIGHT, true);
+                    break;
+                case I:
+                    devHUD.toggleDevHud();
                     break;
                 default:
                     break;

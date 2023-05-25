@@ -76,7 +76,7 @@ public class Player extends PhysicsEntity implements GameConstants {
     private void checkForWallRun(Direction direction, Vector2 newVelocity, boolean hasJumpedRecently) {
         Vector2 checkPoint = getWallRunCheckPoint(direction);
         boolean playerIsMovingUpFast = getVelocity().getMagnitude() > PLAYER_MAX_SPEED * 0.5
-                && getVelocity().y > PLAYER_MAX_SPEED * 0.2;
+                && getVelocity().y > PLAYER_MAX_SPEED * 0.1;
 
         if (isPointTouchingTerrain(checkPoint) && (playerIsMovingUpFast
                 || (hasJumpedRecently && lastWallJumpedDirection != direction && getVelocity().y > 0)
