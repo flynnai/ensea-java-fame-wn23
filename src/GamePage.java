@@ -98,10 +98,10 @@ public class GamePage implements GameConstants {
             public void handle(long currentNanoTime) {
                 // find amount of time passed since last loop run
                 long elapsedNanoSeconds = currentNanoTime - prevNanoTime;
-                prevNanoTime = currentNanoTime;
                 double timeDeltaSeconds = elapsedNanoSeconds / 1000000000.0;
                 double currentSecondsTime = (currentNanoTime - startNanoTime) / 1000000000.0;
                 if (elapsedNanoSeconds >= 1.0 / 60) {
+                    prevNanoTime = currentNanoTime;
                     move(currentSecondsTime, Math.min(timeDeltaSeconds, 0.3));
                 }
                 paint();
