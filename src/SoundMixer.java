@@ -18,7 +18,8 @@ public class SoundMixer {
                 "land_on_ground.wav",
                 "jump.wav",
                 "grab_edge.wav",
-                "climb_up.wav"
+                "climb_up.wav",
+                "win_flag.wav"
         ));
 
         allowedSounds = new Hashtable<>();

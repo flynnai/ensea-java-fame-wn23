@@ -9,6 +9,9 @@ import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.animation.*;
@@ -29,6 +32,8 @@ public class FinishedPage implements GameConstants {
 
     @FXML
     private ImageView starRight;
+    @FXML
+    private Text recommendationText;
 
     private AnimationTimer loop;
     private long startNanoTime;
@@ -39,13 +44,12 @@ public class FinishedPage implements GameConstants {
     public FinishedPage(int numStars) {
         try {
             // Load the FXML file
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("sample.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("FinishedPage.fxml"));
             loader.setController(this);
             StackPane root = loader.load();
 
             // Create a Scene with the loaded FXML content
             scene = new Scene(root, STAGE_WIDTH, STAGE_HEIGHT);
-            System.out.println("This is what starleft is : " + starLeft);
 
             starLeft.setVisible(false);
             starMiddle.setVisible(false);
@@ -80,6 +84,20 @@ public class FinishedPage implements GameConstants {
                         root
                 ));
             }
+
+            recommendationText.setTranslateY(300);
+            recommendationText.setWrappingWidth(400);
+            recommendationText.setTextAlignment(TextAlignment.CENTER);
+            if (numStars == 0) {
+                recommendationText.setText("You got zero stars. Try collecting more bread or getting to the flag faster.");
+            } else if (numStars == 1) {
+                recommendationText.setText("You got one star, not bad!");
+            } else if (numStars == 2) {
+                recommendationText.setText("You got two stars! Nice job. You're so close to getting three stars, try again!");
+            } else if (numStars == 3) {
+                recommendationText.setText("You got three stars! Nice job, you win the game.");
+            }
+            recommendationText.setFont(new Font("Courier New", 25));
 
             loop = new AnimationTimer() {
                 public void handle(long currentNanoTime) {

@@ -55,6 +55,15 @@ public class TileMapLayer implements GameConstants {
                 pane.getChildren().add(imageView);
 
                 collectableEntities.add(new CollectableBread(new Vector2(mapCol + 0.5, -mapRow - 0.5), breadType, imageView, gamePage));
+            } else if (tilesetRow == 1 && tilesetCol == 11) {
+                // spawn win flag instead of tile
+                ImageView imageView = new ImageView(spriteSheet);
+                imageView.setFitWidth(TILE_SIZE + 1);
+                imageView.setFitHeight(TILE_SIZE + 1);
+                imageView.setViewport(new Rectangle2D(tilesetCol * (TILE_SIZE + this.tilePaddingPx), tilesetRow * (TILE_SIZE + this.tilePaddingPx), TILE_SIZE, TILE_SIZE));
+                pane.getChildren().add(imageView);
+
+                collectableEntities.add(new CollectableWinFlag(new Vector2(mapCol + 0.5, -mapRow - 0.5), imageView, gamePage));
             } else {
                 // add a new tile to the tilemap
                 tileMatrix.get(mapRow).set(mapCol, new Tile(tilesetRow, tilesetCol, mapCol + 0.5, -mapRow - 0.5, isCollidable));
