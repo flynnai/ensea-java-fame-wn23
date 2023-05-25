@@ -146,9 +146,10 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                 // weighted-average with player jump velocity
                 double magnitude = velocity.getMagnitude() * 0.4 + PLAYER_JUMP_VELOCITY * 0.7;
 
-                velocity = new Vector2(velocity.x * 0.2 + Math.cos(jumpAngleRad) * magnitude,
-                        magnitude * 0.2 + Math.sin(jumpAngleRad) * magnitude
-                );
+//                velocity = new Vector2(velocity.x * 0.2 + Math.cos(jumpAngleRad) * magnitude,
+//                        magnitude * 0.2 + Math.sin(jumpAngleRad) * magnitude
+//                );
+                velocity = new Vector2(velocity.x * 0.6, PLAYER_JUMP_VELOCITY * 0.8 + Math.abs(velocity.x * 0.2));
                 player.setVelocity(velocity);
                 mode = AnimationMode.JUMPING;
                 SoundMixer.playSound("jump.wav");

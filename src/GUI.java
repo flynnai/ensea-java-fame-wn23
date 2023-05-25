@@ -18,7 +18,7 @@ public class GUI extends Application implements GameConstants {
         gamePage = new GamePage(this);
         primaryStage.setScene(gamePage.getScene());
         primaryStage.show();
-
+        
     }
 
     public static void main(String[] args) {

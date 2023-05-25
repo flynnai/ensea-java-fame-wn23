@@ -42,8 +42,6 @@ public class Player extends PhysicsEntity implements GameConstants {
         animation = new PlayerAnimation(this);
         pane.getChildren().add(animation);
 
-        reassignHitBox(playerSlidingHitBox);
-
     }
 
     private void checkForEdgeHang() {
@@ -236,7 +234,6 @@ public class Player extends PhysicsEntity implements GameConstants {
         } else if (actionMode == PlayerActionMode.EDGE_HANGING) {
 
         }
-
 
         if (this.getPosition().y < WORLD_BOTTOM) {
             this.setPosition(PLAYER_START_POSITION);

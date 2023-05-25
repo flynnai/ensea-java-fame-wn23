@@ -55,11 +55,11 @@ public class FinishedPage implements GameConstants {
             starMiddle.setVisible(false);
             starRight.setVisible(false);
             if (numStars > 0) {
-                makeShakeTransition(starLeft, Duration.millis(1000));
+                makeShakeTransition(starLeft, Duration.millis(1000), "");
                 if (numStars > 1) {
-                    makeShakeTransition(starMiddle, Duration.millis(2000));
+                    makeShakeTransition(starMiddle, Duration.millis(2000), numStars == 2 ? "polite_applause.wav" : "");
                     if (numStars == 3) {
-                        makeShakeTransition(starRight, Duration.millis(3000));
+                        makeShakeTransition(starRight, Duration.millis(3000), "loud_applause.wav");
                     }
                 }
             }
@@ -128,7 +128,7 @@ public class FinishedPage implements GameConstants {
         return scene;
     }
 
-    public void makeShakeTransition(ImageView imageView, Duration delay) {
+    public void makeShakeTransition(ImageView imageView, Duration delay, String soundToPlay) {
         // create visibility pause transition
         imageView.setVisible(false);
 
@@ -136,7 +136,13 @@ public class FinishedPage implements GameConstants {
         PauseTransition pause = new PauseTransition(delay);
 
         // When the pause duration is finished, set the visibility of the ImageView to true
-        pause.setOnFinished(event -> imageView.setVisible(true));
+        pause.setOnFinished(event -> {
+            imageView.setVisible(true);
+            SoundMixer.playSound("metal_thud.wav");
+            if (soundToPlay != "") {
+                SoundMixer.playSound(soundToPlay);
+            }
+        });
 
         pause.play();
 

@@ -19,7 +19,10 @@ public class SoundMixer {
                 "jump.wav",
                 "grab_edge.wav",
                 "climb_up.wav",
-                "win_flag.wav"
+                "win_flag.wav",
+                "polite_applause.wav",
+                "loud_applause.wav",
+                "metal_thud.wav"
         ));
 
         allowedSounds = new Hashtable<>();

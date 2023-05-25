@@ -6,13 +6,13 @@ public interface GameConstants {
     public static final double PLAYER_MAX_SPEED = 8;
     public static final double PLAYER_GROUND_MOVE_FORCE = 15;
     public static final double GROUND_FRICTION = 0.92;
-    // we want some friction when running, but not full ground friction
+// we want some friction when running, but not full ground friction
     public static final double RUNNING_FRICTION = 0.98;
     public static final double AIR_FRICTION = 0.99;
-    public static final double PLAYER_AIR_MOVE_FORCE = 5;
-    public static final Vector2 PLAYER_START_POSITION = new Vector2(15, 2);
+    public static final double PLAYER_AIR_MOVE_FORCE = 2;
+    public static final Vector2 PLAYER_START_POSITION = new Vector2(15, -19);
     // the bottom of the map, where the player will fall and die
-    public static final int WORLD_BOTTOM = -17;
+    public static final int WORLD_BOTTOM = -40;
     // parallax background speed
     public static final double BACKGROUND_SPEED = 30;
     public static final double PLAYER_JUMP_VELOCITY = 7;
