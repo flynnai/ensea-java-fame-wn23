@@ -10,7 +10,7 @@ public interface GameConstants {
     public static final double RUNNING_FRICTION = 0.98;
     public static final double AIR_FRICTION = 0.99;
     public static final double PLAYER_AIR_MOVE_FORCE = 2;
-    public static final Vector2 PLAYER_START_POSITION = new Vector2(10, -19);
+    public static final Vector2 PLAYER_START_POSITION = new Vector2(8, -19);
     // the bottom of the map, where the player will fall and die
     public static final int WORLD_BOTTOM = -40;
     // parallax background speed

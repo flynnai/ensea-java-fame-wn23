@@ -28,7 +28,7 @@ class ParallaxBackgroundLayer implements GameConstants {
                 -scrollX * speed * BACKGROUND_SPEED,
                 false,
                 Side.TOP,
-                (scrollY - WORLD_BOTTOM * 0.4) * speed * BACKGROUND_SPEED,
+                (scrollY - WORLD_BOTTOM * 0.8) * speed  * 0.5 * BACKGROUND_SPEED,
                 false
         );
 
