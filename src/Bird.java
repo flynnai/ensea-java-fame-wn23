@@ -41,6 +41,7 @@ public class Bird extends BenignEntity {
     private final double maxFlySpeed;
     private boolean wasHeadingForWall = false;
     private double skittishness;
+    private String soundName;
 
     public Bird(Vector2 position, Player player, Pane pane, List<List<Tile>> tileMatrix) {
         super(position);
@@ -51,6 +52,8 @@ public class Bird extends BenignEntity {
         skittishness = Math.random() * 2 + 2; // how close the player can get
         maxFlySpeed = Math.random() * 0.05 + 0.07;
         direction = Math.random() > 0.5 ? Direction.RIGHT : Direction.LEFT;
+
+        soundName = Math.random() > 0 ? "pigeon_flying_1.wav" : "pigeon_flying_2.wav";
     }
 
     boolean isPointInvalid(Vector2 point) {
@@ -195,6 +198,7 @@ public class Bird extends BenignEntity {
             // check how close the player is
             if (player.getPosition().subtract(position).getMagnitude() < skittishness) {
                 mode = Mode.FLYING;
+                SoundMixer.playSoundIfNotPlaying(soundName);
                 boolean isPlayerToTheLeft = player.getPosition().x < position.x;
                 // let's make some birds go towards the player
                 isPlayerToTheLeft = (Math.random() < 0.8) ? isPlayerToTheLeft : !isPlayerToTheLeft;

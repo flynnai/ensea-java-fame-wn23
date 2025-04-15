@@ -22,7 +22,10 @@ public class SoundMixer {
                 "win_flag.wav",
                 "polite_applause.wav",
                 "loud_applause.wav",
-                "metal_thud.wav"
+                "metal_thud.wav",
+                "pigeon_flying_1.wav",
+                "pigeon_flying_2.wav",
+                "initiate_wall_running.wav"
         ));
 
         allowedSounds = new Hashtable<>();
@@ -42,5 +45,13 @@ public class SoundMixer {
         MediaPlayer player = instance.allowedSounds.get(fileName);
         player.seek(new Duration(0));
         player.play();
+    }
+
+    public static void playSoundIfNotPlaying(String fileName) {
+        MediaPlayer player = instance.allowedSounds.get(fileName);
+        if (player.getStatus() != MediaPlayer.Status.PLAYING || player.getCurrentTime().toMillis() > player.getTotalDuration().toMillis() * 0.8) {
+            player.seek(new Duration(0));
+            player.play();
+        }
     }
 }

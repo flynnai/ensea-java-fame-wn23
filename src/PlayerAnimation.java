@@ -75,6 +75,7 @@ public class PlayerAnimation extends ImageView implements GameConstants {
     }
 
     public void initiateWallRunning(Direction direction) {
+        SoundMixer.playSound("initiate_wall_running.wav");
         this.direction = direction;
         mode = AnimationMode.WALL_RUNNING;
         // wall running is frames 49-56
@@ -210,6 +211,11 @@ public class PlayerAnimation extends ImageView implements GameConstants {
                 frameNum++;
                 if (frameNum >= 56) {
                     frameNum = 49;
+                }
+                if (frameNum == 50) {
+                    SoundMixer.playSound("footstep1.wav");
+                } else if (frameNum == 53) {
+                    SoundMixer.playSound("footstep2.wav");
                 }
 
                 // range of [-3 * animationSpeed, 0] for wall running
